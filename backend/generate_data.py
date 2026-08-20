@@ -162,7 +162,18 @@ for i in range(1, NUM_TRANSACTIONS + 1):
 
 ledger_df = pd.DataFrame(ledger)
 
+ground_truth = []
+# ---------------------------------------------------
+# CREATE GROUND TRUTH
+# ---------------------------------------------------
 
+for i in range(1, NUM_TRANSACTIONS + 1):
+
+    ground_truth.append({
+        "payment_id": f"PAY{i:04d}",
+        "expected_status": "MATCHED",
+        "expected_exception": ""
+    })
 # ---------------------------------------------------
 # CREATE INTENTIONAL EXCEPTIONS
 # ---------------------------------------------------
@@ -218,7 +229,41 @@ settlements_df.loc[
     "net_amount"
 ] -= 300
 
+# ---------------------------------------------------
+# UPDATE GROUND TRUTH FOR INTENTIONAL EXCEPTIONS
+# ---------------------------------------------------
 
+ground_truth_df = pd.DataFrame(ground_truth)
+
+ground_truth_df.loc[
+    ground_truth_df["payment_id"] == "PAY0020",
+    ["expected_status", "expected_exception"]
+] = ["EXCEPTION", "MISSING_SETTLEMENT"]
+
+ground_truth_df.loc[
+    ground_truth_df["payment_id"] == "PAY0030",
+    ["expected_status", "expected_exception"]
+] = ["EXCEPTION", "BANK_AMOUNT_MISMATCH"]
+
+ground_truth_df.loc[
+    ground_truth_df["payment_id"] == "PAY0040",
+    ["expected_status", "expected_exception"]
+] = ["EXCEPTION", "UTR_MISMATCH"]
+
+ground_truth_df.loc[
+    ground_truth_df["payment_id"] == "PAY0050",
+    ["expected_status", "expected_exception"]
+] = ["EXCEPTION", "DUPLICATE_BANK_TRANSACTION"]
+
+ground_truth_df.loc[
+    ground_truth_df["payment_id"] == "PAY0060",
+    ["expected_status", "expected_exception"]
+] = ["EXCEPTION", "DATE_MISMATCH"]
+
+ground_truth_df.loc[
+    ground_truth_df["payment_id"] == "PAY0070",
+    ["expected_status", "expected_exception"]
+] = ["EXCEPTION", "FEE_MISMATCH"]
 # ---------------------------------------------------
 # SAVE FILES
 # ---------------------------------------------------
@@ -243,6 +288,15 @@ ledger_df.to_csv(
     index=False
 )
 
+ground_truth_df.to_csv(
+    os.path.join(DATA_DIR, "ground_truth.csv"),
+    index=False
+)
+
+print(
+    f"Ground truth saved to: "
+    f"{os.path.join(DATA_DIR, 'ground_truth.csv')}"
+)
 
 # ---------------------------------------------------
 # DISPLAY SUMMARY
