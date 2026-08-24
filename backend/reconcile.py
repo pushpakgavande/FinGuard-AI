@@ -1,511 +1,220 @@
-import pandas as pd
 import os
 import time
 
+import pandas as pd
 
-# ============================================================
-# 1. PATHS
-# ============================================================
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
-
-
-# ============================================================
-# 2. LOAD DATA
-# ============================================================
-
-payments = pd.read_csv(
-    os.path.join(DATA_DIR, "payments.csv")
-)
-
-settlements = pd.read_csv(
-    os.path.join(DATA_DIR, "settlements.csv")
-)
-
-bank = pd.read_csv(
-    os.path.join(DATA_DIR, "bank_transactions.csv")
-)
-
-
-# ============================================================
-# 3. START TIMER
-# ============================================================
-
+payments = pd.read_csv(os.path.join(DATA_DIR, "payments.csv"))
+settlements = pd.read_csv(os.path.join(DATA_DIR, "settlements.csv"))
+bank = pd.read_csv(os.path.join(DATA_DIR, "bank_transactions.csv"))
 start_time = time.time()
-
 results = []
 
 
-# ============================================================
-# 4. RECONCILE EACH PAYMENT
-# ============================================================
+def add_result(payment_id, status, exception_type="", confidence=0, reason="",
+               settlement_id="", bank_id="", evidence="",
+               recommended_action=""):
+    results.append({
+        "payment_id": payment_id,
+        "settlement_id": settlement_id,
+        "bank_id": bank_id,
+        "status": status,
+        "exception_type": exception_type,
+        "confidence": confidence,
+        "reason": reason,
+        "evidence": evidence,
+        "recommended_action": recommended_action,
+    })
+
 
 for _, payment in payments.iterrows():
-
     payment_id = payment["payment_id"]
     payment_amount = float(payment["amount"])
-
-    # --------------------------------------------------------
-    # Find settlement
-    # --------------------------------------------------------
-
-    settlement_matches = settlements[
-        settlements["payment_id"] == payment_id
-    ]
+    settlement_matches = settlements[settlements["payment_id"] == payment_id]
 
     if settlement_matches.empty:
-
-        results.append({
-            "payment_id": payment_id,
-            "status": "EXCEPTION",
-            "exception_type": "MISSING_SETTLEMENT",
-            "confidence": 100,
-            "reason": (
-                "Payment exists but no settlement "
-                "was found."
-            )
-        })
-
+        add_result(
+            payment_id, "EXCEPTION", "MISSING_SETTLEMENT", 100,
+            "Payment exists but no settlement was found.",
+            evidence="Payment record exists, but no matching settlement record was found.",
+            recommended_action="Investigate why the payment has not appeared in settlement records.",
+        )
         continue
 
     settlement = settlement_matches.iloc[0]
-
     settlement_id = settlement["settlement_id"]
     utr = str(settlement["utr"])
-
-    gross_amount = float(
-        settlement["gross_amount"]
-    )
-
-    actual_fee = float(
-        settlement["fee"]
-    )
-
-    actual_tax = float(
-        settlement["tax"]
-    )
-
-    actual_net = float(
-        settlement["net_amount"]
-    )
-
-
-    # --------------------------------------------------------
-    # CHECK 1: PAYMENT vs SETTLEMENT GROSS AMOUNT
-    # --------------------------------------------------------
+    gross_amount = float(settlement["gross_amount"])
+    actual_fee = float(settlement["fee"])
+    actual_tax = float(settlement["tax"])
+    actual_net = float(settlement["net_amount"])
 
     if round(payment_amount, 2) != round(gross_amount, 2):
-
-        results.append({
-            "payment_id": payment_id,
-            "settlement_id": settlement_id,
-            "status": "EXCEPTION",
-            "exception_type": "GROSS_AMOUNT_MISMATCH",
-            "confidence": 100,
-            "reason": (
-                f"Payment amount ₹{payment_amount:.2f} "
-                f"does not match settlement gross amount "
-                f"₹{gross_amount:.2f}."
-            )
-        })
-
+        add_result(
+            payment_id, "EXCEPTION", "GROSS_AMOUNT_MISMATCH", 100,
+            f"Payment amount INR {payment_amount:.2f} does not match settlement gross amount INR {gross_amount:.2f}.",
+            settlement_id,
+            evidence=f"Payment amount: INR {payment_amount:.2f}; Settlement gross amount: INR {gross_amount:.2f}.",
+            recommended_action="Investigate the payment and settlement amount discrepancy.",
+        )
         continue
 
-
-    # --------------------------------------------------------
-    # CHECK 2: EXPECTED FEE
-    #
-    # Our synthetic processor uses:
-    # Fee = 2% of gross amount
-    # --------------------------------------------------------
-
-    expected_fee = round(
-        gross_amount * 0.02,
-        2
-    )
-
+    expected_fee = round(gross_amount * 0.02, 2)
     if round(actual_fee, 2) != expected_fee:
-
-        fee_difference = round(
-            actual_fee - expected_fee,
-            2
+        difference = round(actual_fee - expected_fee, 2)
+        add_result(
+            payment_id, "EXCEPTION", "FEE_MISMATCH", 100,
+            f"Expected fee INR {expected_fee:.2f}, but settlement reports INR {actual_fee:.2f}. Fee variance: INR {difference:.2f}.",
+            settlement_id,
+            evidence=f"Expected fee: INR {expected_fee:.2f}; Actual fee: INR {actual_fee:.2f}; Variance: INR {difference:.2f}.",
+            recommended_action="Review the settlement fee calculation and verify the applicable fee rule.",
         )
-
-        results.append({
-            "payment_id": payment_id,
-            "settlement_id": settlement_id,
-            "status": "EXCEPTION",
-            "exception_type": "FEE_MISMATCH",
-            "confidence": 100,
-            "reason": (
-                f"Expected fee ₹{expected_fee:.2f}, "
-                f"but settlement reports "
-                f"₹{actual_fee:.2f}. "
-                f"Fee variance: ₹{fee_difference:.2f}."
-            )
-        })
-
         continue
 
-
-    # --------------------------------------------------------
-    # CHECK 3: TAX CALCULATION
-    #
-    # Tax = 18% of fee
-    # --------------------------------------------------------
-
-    expected_tax = round(
-        expected_fee * 0.18,
-        2
-    )
-
+    expected_tax = round(expected_fee * 0.18, 2)
     if round(actual_tax, 2) != expected_tax:
-
-        tax_difference = round(
-            actual_tax - expected_tax,
-            2
+        difference = round(actual_tax - expected_tax, 2)
+        add_result(
+            payment_id, "EXCEPTION", "TAX_MISMATCH", 100,
+            f"Expected tax INR {expected_tax:.2f}, but settlement reports INR {actual_tax:.2f}. Tax variance: INR {difference:.2f}.",
+            settlement_id,
+            evidence=f"Expected tax: INR {expected_tax:.2f}; Actual tax: INR {actual_tax:.2f}; Variance: INR {difference:.2f}.",
+            recommended_action="Review the tax calculation and verify the applicable tax rule.",
         )
-
-        results.append({
-            "payment_id": payment_id,
-            "settlement_id": settlement_id,
-            "status": "EXCEPTION",
-            "exception_type": "TAX_MISMATCH",
-            "confidence": 100,
-            "reason": (
-                f"Expected tax ₹{expected_tax:.2f}, "
-                f"but settlement reports "
-                f"₹{actual_tax:.2f}. "
-                f"Tax variance: ₹{tax_difference:.2f}."
-            )
-        })
-
         continue
 
-
-    # --------------------------------------------------------
-    # CHECK 4: NET SETTLEMENT CALCULATION
-    # --------------------------------------------------------
-
-    expected_net = round(
-        gross_amount
-        - expected_fee
-        - expected_tax,
-        2
-    )
-
+    expected_net = round(gross_amount - expected_fee - expected_tax, 2)
     if round(actual_net, 2) != expected_net:
-
-        net_difference = round(
-            actual_net - expected_net,
-            2
+        difference = round(actual_net - expected_net, 2)
+        add_result(
+            payment_id, "EXCEPTION", "SETTLEMENT_NET_MISMATCH", 95,
+            f"Expected settlement net INR {expected_net:.2f}, but settlement reports INR {actual_net:.2f}. Variance: INR {difference:.2f}.",
+            settlement_id,
+            evidence=f"Expected net: INR {expected_net:.2f}; Actual net: INR {actual_net:.2f}; Variance: INR {difference:.2f}.",
+            recommended_action="Review gross amount, fee and tax components to identify the source of the net settlement variance.",
         )
-
-        results.append({
-            "payment_id": payment_id,
-            "settlement_id": settlement_id,
-            "status": "EXCEPTION",
-            "exception_type": "SETTLEMENT_NET_MISMATCH",
-            "confidence": 95,
-            "reason": (
-                f"Expected settlement net "
-                f"₹{expected_net:.2f}, "
-                f"but settlement reports "
-                f"₹{actual_net:.2f}. "
-                f"Variance: ₹{net_difference:.2f}."
-            )
-        })
-
         continue
 
-
-    # --------------------------------------------------------
-    # CHECK 5: FIND BANK TRANSACTION BY UTR
-    # --------------------------------------------------------
-
-    bank_matches = bank[
-        bank["utr"].astype(str) == utr
-    ]
-
-    # --------------------------------------------------------
-    # DUPLICATE UTR
-    # --------------------------------------------------------
+    settlement_date = pd.to_datetime(settlement["date"])
+    bank_matches = bank[bank["utr"].astype(str) == utr]
 
     if len(bank_matches) > 1:
-
-        results.append({
-            "payment_id": payment_id,
-            "settlement_id": settlement_id,
-            "status": "EXCEPTION",
-            "exception_type": "DUPLICATE_BANK_TRANSACTION",
-            "confidence": 100,
-            "reason": (
-                f"Multiple bank transactions found "
-                f"for UTR {utr}."
-            )
-        })
-
+        add_result(
+            payment_id, "EXCEPTION", "DUPLICATE_BANK_TRANSACTION", 100,
+            f"Multiple bank transactions found for UTR {utr}.", settlement_id,
+            evidence=f"UTR {utr} appears in {len(bank_matches)} bank transactions.",
+            recommended_action="Investigate duplicate bank entries and determine which transaction is valid.",
+        )
         continue
 
-    # --------------------------------------------------------
-    # EXACT UTR FOUND
-    # --------------------------------------------------------
-
     if len(bank_matches) == 1:
-
         bank_transaction = bank_matches.iloc[0]
         bank_id = bank_transaction["bank_id"]
         bank_credit = float(bank_transaction["credit"])
         bank_date = pd.to_datetime(bank_transaction["date"])
-        settlement_date = pd.to_datetime(settlement["date"])
         date_difference = abs((bank_date - settlement_date).days)
 
-        if round(bank_credit, 2) != round(expected_net, 2):
-
+        if round(bank_credit, 2) != expected_net:
             difference = round(bank_credit - expected_net, 2)
-
-            results.append({
-                "payment_id": payment_id,
-                "settlement_id": settlement_id,
-                "bank_id": bank_id,
-                "status": "EXCEPTION",
-                "exception_type": "BANK_AMOUNT_MISMATCH",
-                "confidence": 100,
-                "reason": (
-                    f"Expected bank credit ₹{expected_net:.2f}, "
-                    f"but received ₹{bank_credit:.2f}. "
-                    f"Difference: ₹{difference:.2f}."
-                )
-            })
-
+            add_result(
+                payment_id, "EXCEPTION", "BANK_AMOUNT_MISMATCH", 100,
+                f"Expected bank credit INR {expected_net:.2f}, but received INR {bank_credit:.2f}. Difference: INR {difference:.2f}.",
+                settlement_id, bank_id,
+                evidence=f"Expected bank credit: INR {expected_net:.2f}; Actual bank credit: INR {bank_credit:.2f}; Variance: INR {difference:.2f}.",
+                recommended_action="Verify the bank credit amount against the settlement record.",
+            )
             continue
 
         if date_difference > 3:
-
-            results.append({
-                "payment_id": payment_id,
-                "settlement_id": settlement_id,
-                "bank_id": bank_id,
-                "status": "EXCEPTION",
-                "exception_type": "DATE_MISMATCH",
-                "confidence": 100,
-                "reason": (
-                    f"Settlement date: {settlement_date.date()}, "
-                    f"Bank date: {bank_date.date()}."
-                )
-            })
-
+            add_result(
+                payment_id, "EXCEPTION", "DATE_MISMATCH", 100,
+                f"Settlement date: {settlement_date.date()}, Bank date: {bank_date.date()}.",
+                settlement_id, bank_id,
+                evidence=f"Settlement date: {settlement_date.date()}; Bank date: {bank_date.date()}; Difference: {date_difference} days.",
+                recommended_action="Verify the settlement and bank transaction dates and investigate the timing difference.",
+            )
             continue
 
-        results.append({
-            "payment_id": payment_id,
-            "settlement_id": settlement_id,
-            "bank_id": bank_id,
-            "status": "MATCHED",
-            "exception_type": "",
-            "confidence": 100,
-            "reason": (
-                "Payment, settlement and bank "
-                "transaction match successfully."
-            )
-        })
-
+        add_result(
+            payment_id, "MATCHED", settlement_id=settlement_id, bank_id=bank_id,
+            confidence=100,
+            reason="Payment, settlement and bank transaction match successfully.",
+            evidence=f"Payment amount INR {payment_amount:.2f} matches gross settlement amount; expected net INR {expected_net:.2f} matches bank credit; UTR matches; dates are within tolerance.",
+            recommended_action="No action required.",
+        )
         continue
-
-    # ========================================================
-    # NO EXACT UTR FOUND
-    #
-    # INVESTIGATE FOR UTR MISMATCH
-    # ========================================================
-
-    settlement_date = pd.to_datetime(settlement["date"])
 
     exact_date_candidates = bank[
-        (
-            bank["credit"].round(2)
-            == round(expected_net, 2)
-        )
-        &
-        (
-            pd.to_datetime(bank["date"])
-            == settlement_date
-        )
+        (bank["credit"].round(2) == expected_net)
+        & (pd.to_datetime(bank["date"]) == settlement_date)
     ].copy()
-
     if len(exact_date_candidates) == 1:
-
         candidate = exact_date_candidates.iloc[0]
-        candidate_utr = str(candidate["utr"])
-        candidate_bank_id = candidate["bank_id"]
-
-        results.append({
-            "payment_id": payment_id,
-            "settlement_id": settlement_id,
-            "bank_id": candidate_bank_id,
-            "status": "EXCEPTION",
-            "exception_type": "UTR_MISMATCH",
-            "confidence": 99,
-            "reason": (
-                f"Expected UTR {utr}, but bank "
-                f"transaction {candidate_bank_id} "
-                f"has UTR {candidate_utr}. "
-                f"Amount ₹{expected_net:.2f} and "
-                f"date {settlement_date.date()} match."
-            )
-        })
-
+        add_result(
+            payment_id, "EXCEPTION", "UTR_MISMATCH", 99,
+            f"Expected UTR {utr}, but bank transaction {candidate['bank_id']} has UTR {candidate['utr']}. Amount and date match.",
+            settlement_id, candidate["bank_id"],
+            evidence=f"Expected UTR: {utr}; Bank UTR: {candidate['utr']}; Amount: INR {expected_net:.2f}; Date: {settlement_date.date()}.",
+            recommended_action="Verify the bank UTR against the settlement record.",
+        )
         continue
 
-    bank_candidates = bank[
-        bank["credit"].round(2)
-        == round(expected_net, 2)
-    ].copy()
-
+    bank_candidates = bank[bank["credit"].round(2) == expected_net].copy()
     if not bank_candidates.empty:
-
         bank_candidates["date_difference"] = (
-            pd.to_datetime(bank_candidates["date"])
-            - settlement_date
+            pd.to_datetime(bank_candidates["date"]) - settlement_date
         ).abs().dt.days
-
-        nearby_candidates = bank_candidates[
-            bank_candidates["date_difference"] <= 3
-        ]
-
+        nearby_candidates = bank_candidates[bank_candidates["date_difference"] <= 3]
         if len(nearby_candidates) == 1:
-
             candidate = nearby_candidates.iloc[0]
-            candidate_utr = str(candidate["utr"])
-            candidate_bank_id = candidate["bank_id"]
-
-            results.append({
-                "payment_id": payment_id,
-                "settlement_id": settlement_id,
-                "bank_id": candidate_bank_id,
-                "status": "EXCEPTION",
-                "exception_type": "UTR_MISMATCH",
-                "confidence": 95,
-                "reason": (
-                    f"Expected UTR {utr}, but bank "
-                    f"transaction {candidate_bank_id} "
-                    f"contains UTR {candidate_utr}. "
-                    f"Amount and date are consistent."
-                )
-            })
-
+            add_result(
+                payment_id, "EXCEPTION", "UTR_MISMATCH", 95,
+                f"Expected UTR {utr}, but bank transaction {candidate['bank_id']} contains UTR {candidate['utr']}. Amount and date are consistent.",
+                settlement_id, candidate["bank_id"],
+                evidence=f"Expected UTR: {utr}; Bank UTR: {candidate['utr']}; Expected amount: INR {expected_net:.2f}; Date difference: {int(candidate['date_difference'])} days.",
+                recommended_action="Verify the bank UTR against the settlement record.",
+            )
             continue
 
-    results.append({
-        "payment_id": payment_id,
-        "settlement_id": settlement_id,
-        "status": "EXCEPTION",
-        "exception_type": "MISSING_BANK_TRANSACTION",
-        "confidence": 90,
-        "reason": (
-            f"No bank transaction found for "
-            f"UTR {utr}, and no sufficiently strong "
-            f"candidate was found using amount and date."
-        )
-    })
+    add_result(
+        payment_id, "EXCEPTION", "MISSING_BANK_TRANSACTION", 90,
+        f"No bank transaction found for UTR {utr}, and no sufficiently strong candidate was found using amount and date.",
+        settlement_id,
+        evidence=f"Expected UTR: {utr}; Expected bank amount: INR {expected_net:.2f}; No sufficiently strong bank candidate found.",
+        recommended_action="Investigate whether the settlement is missing from the bank statement.",
+    )
 
-
-# ============================================================
-# 5. CREATE RESULTS DATAFRAME
-# ============================================================
 
 results_df = pd.DataFrame(results)
-
-
-# ============================================================
-# 6. CALCULATE BASIC METRICS
-# ============================================================
-
 total_records = len(results_df)
+matched_records = len(results_df[results_df["status"] == "MATCHED"])
+exception_records = len(results_df[results_df["status"] == "EXCEPTION"])
+match_rate = matched_records / total_records * 100 if total_records else 0
+processing_time = time.time() - start_time
+throughput = total_records / processing_time if processing_time > 0 else 0
+results_path = os.path.join(DATA_DIR, "reconciliation_results.csv")
+results_df.to_csv(results_path, index=False)
 
-matched_records = len(
-    results_df[
-        results_df["status"] == "MATCHED"
-    ]
-)
-
-exception_records = len(
-    results_df[
-        results_df["status"] == "EXCEPTION"
-    ]
-)
-
-match_rate = (
-    matched_records
-    / total_records
-    * 100
-)
-
-
-processing_time = (
-    time.time() - start_time
-)
-
-throughput = (
-    total_records
-    / processing_time
-    if processing_time > 0
-    else 0
-)
-
-
-# ============================================================
-# 7. DISPLAY REPORT
-# ============================================================
-
-print("\n")
-print("=" * 65)
+print("\n" + "=" * 65)
 print("                 FINGUARD AI")
 print("          SMART RECONCILIATION ENGINE")
 print("=" * 65)
-
-print(
-    f"\nTotal records processed : {total_records}"
-)
-
-print(
-    f"Matched records         : {matched_records}"
-)
-
-print(
-    f"Exceptions              : {exception_records}"
-)
-
-print(
-    f"\nMatch rate              : "
-    f"{match_rate:.2f}%"
-)
-
-print(
-    f"Processing time         : "
-    f"{processing_time:.4f} seconds"
-)
-
-print(
-    f"Throughput              : "
-    f"{throughput:.2f} records/second"
-)
-
-
-# ============================================================
-# 8. SHOW EXCEPTIONS
-# ============================================================
-
-exceptions = results_df[
-    results_df["status"] == "EXCEPTION"
-]
-
-
+print(f"\nTotal records processed : {total_records}")
+print(f"Matched records         : {matched_records}")
+print(f"Exceptions              : {exception_records}")
+print(f"\nMatch rate              : {match_rate:.2f}%")
+print(f"Processing time         : {processing_time:.4f} seconds")
+print(f"Throughput              : {throughput:.2f} records/second")
 print("\n")
 print("=" * 65)
 print("                    EXCEPTIONS")
 print("=" * 65)
 
+exceptions = results_df[
+    results_df["status"] == "EXCEPTION"
+]
 
 for _, row in exceptions.iterrows():
 
@@ -523,27 +232,12 @@ for _, row in exceptions.iterrows():
         f"Reason: {row['reason']}"
     )
 
+    print(
+        f"Evidence: {row['evidence']}"
+    )
 
-# ============================================================
-# 9. SAVE RESULTS
-# ============================================================
-
-results_path = os.path.join(
-    DATA_DIR,
-    "reconciliation_results.csv"
-)
-
-results_df.to_csv(
-    results_path,
-    index=False
-)
-
-
-print("\n")
-print("=" * 65)
-
-print(
-    f"Results saved to: {results_path}"
-)
-
-print("=" * 65)
+    print(
+        f"Recommended action: "
+        f"{row['recommended_action']}"
+    )
+print(f"\nResults saved to        : {results_path}")

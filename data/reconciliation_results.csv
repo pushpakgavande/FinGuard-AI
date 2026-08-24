@@ -1,101 +1,101 @@
-payment_id,settlement_id,bank_id,status,exception_type,confidence,reason
-PAY0001,SET0001,BANK0001,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0002,SET0002,BANK0002,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0003,SET0003,BANK0003,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0004,SET0004,BANK0004,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0005,SET0005,BANK0005,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0006,SET0006,BANK0006,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0007,SET0007,BANK0007,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0008,SET0008,BANK0008,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0009,SET0009,BANK0009,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0010,SET0010,BANK0010,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0011,SET0011,BANK0011,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0012,SET0012,BANK0012,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0013,SET0013,BANK0013,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0014,SET0014,BANK0014,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0015,SET0015,BANK0015,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0016,SET0016,BANK0016,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0017,SET0017,BANK0017,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0018,SET0018,BANK0018,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0019,SET0019,BANK0019,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0020,,,EXCEPTION,MISSING_SETTLEMENT,100,Payment exists but no settlement was found.
-PAY0021,SET0021,BANK0021,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0022,SET0022,BANK0022,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0023,SET0023,BANK0023,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0024,SET0024,BANK0024,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0025,SET0025,BANK0025,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0026,SET0026,BANK0026,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0027,SET0027,BANK0027,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0028,SET0028,BANK0028,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0029,SET0029,BANK0029,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0030,SET0030,BANK0030,EXCEPTION,BANK_AMOUNT_MISMATCH,100,"Expected bank credit ₹1464.60, but received ₹1064.60. Difference: ₹-400.00."
-PAY0031,SET0031,BANK0031,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0032,SET0032,BANK0032,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0033,SET0033,BANK0033,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0034,SET0034,BANK0034,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0035,SET0035,BANK0035,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0036,SET0036,BANK0036,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0037,SET0037,BANK0037,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0038,SET0038,BANK0038,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0039,SET0039,BANK0039,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0040,SET0040,BANK0040,EXCEPTION,UTR_MISMATCH,99,"Expected UTR UTR000040, but bank transaction BANK0040 has UTR UTR999999. Amount ₹1464.60 and date 2026-08-11 match."
-PAY0041,SET0041,BANK0041,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0042,SET0042,BANK0042,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0043,SET0043,BANK0043,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0044,SET0044,BANK0044,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0045,SET0045,BANK0045,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0046,SET0046,BANK0046,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0047,SET0047,BANK0047,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0048,SET0048,BANK0048,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0049,SET0049,BANK0049,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0050,SET0050,,EXCEPTION,DUPLICATE_BANK_TRANSACTION,100,Multiple bank transactions found for UTR UTR000050.
-PAY0051,SET0051,BANK0051,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0052,SET0052,BANK0052,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0053,SET0053,BANK0053,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0054,SET0054,BANK0054,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0055,SET0055,BANK0055,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0056,SET0056,BANK0056,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0057,SET0057,BANK0057,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0058,SET0058,BANK0058,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0059,SET0059,BANK0059,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0060,SET0060,BANK0060,EXCEPTION,DATE_MISMATCH,100,"Settlement date: 2026-08-04, Bank date: 2026-08-20."
-PAY0061,SET0061,BANK0061,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0062,SET0062,BANK0062,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0063,SET0063,BANK0063,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0064,SET0064,BANK0064,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0065,SET0065,BANK0065,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0066,SET0066,BANK0066,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0067,SET0067,BANK0067,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0068,SET0068,BANK0068,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0069,SET0069,BANK0069,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0070,SET0070,,EXCEPTION,FEE_MISMATCH,100,"Expected fee ₹300.00, but settlement reports ₹600.00. Fee variance: ₹300.00."
-PAY0071,SET0071,BANK0071,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0072,SET0072,BANK0072,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0073,SET0073,BANK0073,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0074,SET0074,BANK0074,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0075,SET0075,BANK0075,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0076,SET0076,BANK0076,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0077,SET0077,BANK0077,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0078,SET0078,BANK0078,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0079,SET0079,BANK0079,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0080,SET0080,BANK0080,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0081,SET0081,BANK0081,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0082,SET0082,BANK0082,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0083,SET0083,BANK0083,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0084,SET0084,BANK0084,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0085,SET0085,BANK0085,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0086,SET0086,BANK0086,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0087,SET0087,BANK0087,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0088,SET0088,BANK0088,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0089,SET0089,BANK0089,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0090,SET0090,BANK0090,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0091,SET0091,BANK0091,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0092,SET0092,BANK0092,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0093,SET0093,BANK0093,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0094,SET0094,BANK0094,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0095,SET0095,BANK0095,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0096,SET0096,BANK0096,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0097,SET0097,BANK0097,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0098,SET0098,BANK0098,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0099,SET0099,BANK0099,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
-PAY0100,SET0100,BANK0100,MATCHED,,100,"Payment, settlement and bank transaction match successfully."
+payment_id,settlement_id,bank_id,status,exception_type,confidence,reason,evidence,recommended_action
+PAY0001,SET0001,BANK0001,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 750.00 matches gross settlement amount; expected net INR 732.30 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0002,SET0002,BANK0002,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 2500.00 matches gross settlement amount; expected net INR 2441.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0003,SET0003,BANK0003,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1500.00 matches gross settlement amount; expected net INR 1464.60 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0004,SET0004,BANK0004,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 750.00 matches gross settlement amount; expected net INR 732.30 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0005,SET0005,BANK0005,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 15000.00 matches gross settlement amount; expected net INR 14646.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0006,SET0006,BANK0006,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 20000.00 matches gross settlement amount; expected net INR 19528.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0007,SET0007,BANK0007,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 500.00 matches gross settlement amount; expected net INR 488.20 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0008,SET0008,BANK0008,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 750.00 matches gross settlement amount; expected net INR 732.30 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0009,SET0009,BANK0009,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1500.00 matches gross settlement amount; expected net INR 1464.60 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0010,SET0010,BANK0010,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 20000.00 matches gross settlement amount; expected net INR 19528.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0011,SET0011,BANK0011,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 15000.00 matches gross settlement amount; expected net INR 14646.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0012,SET0012,BANK0012,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 15000.00 matches gross settlement amount; expected net INR 14646.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0013,SET0013,BANK0013,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1500.00 matches gross settlement amount; expected net INR 1464.60 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0014,SET0014,BANK0014,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 20000.00 matches gross settlement amount; expected net INR 19528.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0015,SET0015,BANK0015,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 500.00 matches gross settlement amount; expected net INR 488.20 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0016,SET0016,BANK0016,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 7500.00 matches gross settlement amount; expected net INR 7323.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0017,SET0017,BANK0017,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 2500.00 matches gross settlement amount; expected net INR 2441.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0018,SET0018,BANK0018,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1500.00 matches gross settlement amount; expected net INR 1464.60 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0019,SET0019,BANK0019,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 750.00 matches gross settlement amount; expected net INR 732.30 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0020,,,EXCEPTION,MISSING_SETTLEMENT,100,Payment exists but no settlement was found.,"Payment record exists, but no matching settlement record was found.",Investigate why the payment has not appeared in settlement records.
+PAY0021,SET0021,BANK0021,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 5000.00 matches gross settlement amount; expected net INR 4882.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0022,SET0022,BANK0022,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 20000.00 matches gross settlement amount; expected net INR 19528.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0023,SET0023,BANK0023,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 500.00 matches gross settlement amount; expected net INR 488.20 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0024,SET0024,BANK0024,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 15000.00 matches gross settlement amount; expected net INR 14646.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0025,SET0025,BANK0025,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 7500.00 matches gross settlement amount; expected net INR 7323.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0026,SET0026,BANK0026,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 15000.00 matches gross settlement amount; expected net INR 14646.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0027,SET0027,BANK0027,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 20000.00 matches gross settlement amount; expected net INR 19528.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0028,SET0028,BANK0028,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 20000.00 matches gross settlement amount; expected net INR 19528.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0029,SET0029,BANK0029,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 750.00 matches gross settlement amount; expected net INR 732.30 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0030,SET0030,BANK0030,EXCEPTION,BANK_AMOUNT_MISMATCH,100,"Expected bank credit INR 1464.60, but received INR 1064.60. Difference: INR -400.00.",Expected bank credit: INR 1464.60; Actual bank credit: INR 1064.60; Variance: INR -400.00.,Verify the bank credit amount against the settlement record.
+PAY0031,SET0031,BANK0031,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 750.00 matches gross settlement amount; expected net INR 732.30 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0032,SET0032,BANK0032,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 750.00 matches gross settlement amount; expected net INR 732.30 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0033,SET0033,BANK0033,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 2500.00 matches gross settlement amount; expected net INR 2441.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0034,SET0034,BANK0034,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 5000.00 matches gross settlement amount; expected net INR 4882.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0035,SET0035,BANK0035,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 5000.00 matches gross settlement amount; expected net INR 4882.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0036,SET0036,BANK0036,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1500.00 matches gross settlement amount; expected net INR 1464.60 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0037,SET0037,BANK0037,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 2500.00 matches gross settlement amount; expected net INR 2441.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0038,SET0038,BANK0038,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 750.00 matches gross settlement amount; expected net INR 732.30 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0039,SET0039,BANK0039,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1000.00 matches gross settlement amount; expected net INR 976.40 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0040,SET0040,BANK0040,EXCEPTION,UTR_MISMATCH,99,"Expected UTR UTR000040, but bank transaction BANK0040 has UTR UTR999999. Amount and date match.",Expected UTR: UTR000040; Bank UTR: UTR999999; Amount: INR 1464.60; Date: 2026-08-11.,Verify the bank UTR against the settlement record.
+PAY0041,SET0041,BANK0041,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 10000.00 matches gross settlement amount; expected net INR 9764.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0042,SET0042,BANK0042,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 2500.00 matches gross settlement amount; expected net INR 2441.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0043,SET0043,BANK0043,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 15000.00 matches gross settlement amount; expected net INR 14646.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0044,SET0044,BANK0044,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 5000.00 matches gross settlement amount; expected net INR 4882.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0045,SET0045,BANK0045,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1500.00 matches gross settlement amount; expected net INR 1464.60 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0046,SET0046,BANK0046,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 5000.00 matches gross settlement amount; expected net INR 4882.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0047,SET0047,BANK0047,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 2500.00 matches gross settlement amount; expected net INR 2441.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0048,SET0048,BANK0048,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1500.00 matches gross settlement amount; expected net INR 1464.60 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0049,SET0049,BANK0049,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 5000.00 matches gross settlement amount; expected net INR 4882.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0050,SET0050,,EXCEPTION,DUPLICATE_BANK_TRANSACTION,100,Multiple bank transactions found for UTR UTR000050.,UTR UTR000050 appears in 2 bank transactions.,Investigate duplicate bank entries and determine which transaction is valid.
+PAY0051,SET0051,BANK0051,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 10000.00 matches gross settlement amount; expected net INR 9764.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0052,SET0052,BANK0052,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 2500.00 matches gross settlement amount; expected net INR 2441.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0053,SET0053,BANK0053,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1500.00 matches gross settlement amount; expected net INR 1464.60 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0054,SET0054,BANK0054,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 15000.00 matches gross settlement amount; expected net INR 14646.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0055,SET0055,BANK0055,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 20000.00 matches gross settlement amount; expected net INR 19528.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0056,SET0056,BANK0056,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 20000.00 matches gross settlement amount; expected net INR 19528.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0057,SET0057,BANK0057,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 5000.00 matches gross settlement amount; expected net INR 4882.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0058,SET0058,BANK0058,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1000.00 matches gross settlement amount; expected net INR 976.40 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0059,SET0059,BANK0059,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 10000.00 matches gross settlement amount; expected net INR 9764.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0060,SET0060,BANK0060,EXCEPTION,DATE_MISMATCH,100,"Settlement date: 2026-08-04, Bank date: 2026-08-20.",Settlement date: 2026-08-04; Bank date: 2026-08-20; Difference: 16 days.,Verify the settlement and bank transaction dates and investigate the timing difference.
+PAY0061,SET0061,BANK0061,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1000.00 matches gross settlement amount; expected net INR 976.40 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0062,SET0062,BANK0062,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1000.00 matches gross settlement amount; expected net INR 976.40 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0063,SET0063,BANK0063,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 7500.00 matches gross settlement amount; expected net INR 7323.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0064,SET0064,BANK0064,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 750.00 matches gross settlement amount; expected net INR 732.30 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0065,SET0065,BANK0065,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 7500.00 matches gross settlement amount; expected net INR 7323.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0066,SET0066,BANK0066,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 10000.00 matches gross settlement amount; expected net INR 9764.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0067,SET0067,BANK0067,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 2500.00 matches gross settlement amount; expected net INR 2441.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0068,SET0068,BANK0068,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 500.00 matches gross settlement amount; expected net INR 488.20 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0069,SET0069,BANK0069,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 750.00 matches gross settlement amount; expected net INR 732.30 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0070,SET0070,,EXCEPTION,FEE_MISMATCH,100,"Expected fee INR 300.00, but settlement reports INR 600.00. Fee variance: INR 300.00.",Expected fee: INR 300.00; Actual fee: INR 600.00; Variance: INR 300.00.,Review the settlement fee calculation and verify the applicable fee rule.
+PAY0071,SET0071,BANK0071,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 5000.00 matches gross settlement amount; expected net INR 4882.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0072,SET0072,BANK0072,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 2500.00 matches gross settlement amount; expected net INR 2441.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0073,SET0073,BANK0073,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1000.00 matches gross settlement amount; expected net INR 976.40 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0074,SET0074,BANK0074,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 500.00 matches gross settlement amount; expected net INR 488.20 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0075,SET0075,BANK0075,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 15000.00 matches gross settlement amount; expected net INR 14646.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0076,SET0076,BANK0076,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 15000.00 matches gross settlement amount; expected net INR 14646.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0077,SET0077,BANK0077,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 2500.00 matches gross settlement amount; expected net INR 2441.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0078,SET0078,BANK0078,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 15000.00 matches gross settlement amount; expected net INR 14646.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0079,SET0079,BANK0079,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1500.00 matches gross settlement amount; expected net INR 1464.60 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0080,SET0080,BANK0080,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 5000.00 matches gross settlement amount; expected net INR 4882.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0081,SET0081,BANK0081,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 15000.00 matches gross settlement amount; expected net INR 14646.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0082,SET0082,BANK0082,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 500.00 matches gross settlement amount; expected net INR 488.20 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0083,SET0083,BANK0083,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 5000.00 matches gross settlement amount; expected net INR 4882.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0084,SET0084,BANK0084,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 500.00 matches gross settlement amount; expected net INR 488.20 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0085,SET0085,BANK0085,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 5000.00 matches gross settlement amount; expected net INR 4882.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0086,SET0086,BANK0086,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1500.00 matches gross settlement amount; expected net INR 1464.60 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0087,SET0087,BANK0087,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1500.00 matches gross settlement amount; expected net INR 1464.60 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0088,SET0088,BANK0088,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 750.00 matches gross settlement amount; expected net INR 732.30 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0089,SET0089,BANK0089,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 10000.00 matches gross settlement amount; expected net INR 9764.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0090,SET0090,BANK0090,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 15000.00 matches gross settlement amount; expected net INR 14646.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0091,SET0091,BANK0091,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1000.00 matches gross settlement amount; expected net INR 976.40 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0092,SET0092,BANK0092,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 10000.00 matches gross settlement amount; expected net INR 9764.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0093,SET0093,BANK0093,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 1000.00 matches gross settlement amount; expected net INR 976.40 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0094,SET0094,BANK0094,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 15000.00 matches gross settlement amount; expected net INR 14646.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0095,SET0095,BANK0095,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 7500.00 matches gross settlement amount; expected net INR 7323.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0096,SET0096,BANK0096,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 15000.00 matches gross settlement amount; expected net INR 14646.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0097,SET0097,BANK0097,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 2500.00 matches gross settlement amount; expected net INR 2441.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0098,SET0098,BANK0098,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 5000.00 matches gross settlement amount; expected net INR 4882.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0099,SET0099,BANK0099,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 15000.00 matches gross settlement amount; expected net INR 14646.00 matches bank credit; UTR matches; dates are within tolerance.,No action required.
+PAY0100,SET0100,BANK0100,MATCHED,,100,"Payment, settlement and bank transaction match successfully.",Payment amount INR 750.00 matches gross settlement amount; expected net INR 732.30 matches bank credit; UTR matches; dates are within tolerance.,No action required.
