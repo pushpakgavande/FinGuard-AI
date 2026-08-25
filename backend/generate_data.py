@@ -5,15 +5,22 @@ from datetime import datetime, timedelta
 import random
 import os
 
-fake = Faker()
-random.seed(42)
-np.random.seed(42)
 
-# ---------------------------------------------------
 # CONFIGURATION
-# ---------------------------------------------------
 
-NUM_TRANSACTIONS = 100
+NUM_TRANSACTIONS = 500
+
+# Number of records for each exception type
+EXCEPTIONS_PER_TYPE = 10
+
+SEED = 42
+
+random.seed(SEED)
+np.random.seed(SEED)
+Faker.seed(SEED)
+
+fake = Faker()
+
 
 DATA_DIR = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
@@ -23,13 +30,25 @@ DATA_DIR = os.path.join(
 os.makedirs(DATA_DIR, exist_ok=True)
 
 
-# ---------------------------------------------------
 # GENERATE PAYMENTS
-# ---------------------------------------------------
 
 payments = []
 
 start_date = datetime(2026, 8, 1)
+
+amount_options = [
+    500,
+    750,
+    1000,
+    1500,
+    2500,
+    5000,
+    7500,
+    10000,
+    15000,
+    20000
+]
+
 
 for i in range(1, NUM_TRANSACTIONS + 1):
 
@@ -40,18 +59,9 @@ for i in range(1, NUM_TRANSACTIONS + 1):
         days=random.randint(0, 10)
     )
 
-    amount = random.choice([
-        500,
-        750,
-        1000,
-        1500,
-        2500,
-        5000,
-        7500,
-        10000,
-        15000,
-        20000
-    ])
+    amount = random.choice(
+        amount_options
+    )
 
     payments.append({
         "payment_id": payment_id,
@@ -66,9 +76,7 @@ for i in range(1, NUM_TRANSACTIONS + 1):
 payments_df = pd.DataFrame(payments)
 
 
-# ---------------------------------------------------
 # GENERATE SETTLEMENTS
-# ---------------------------------------------------
 
 settlements = []
 
@@ -80,9 +88,15 @@ for i in range(1, NUM_TRANSACTIONS + 1):
 
     gross_amount = payment["amount"]
 
-    fee = round(gross_amount * 0.02, 2)
+    fee = round(
+        gross_amount * 0.02,
+        2
+    )
 
-    tax = round(fee * 0.18, 2)
+    tax = round(
+        fee * 0.18,
+        2
+    )
 
     net_amount = round(
         gross_amount - fee - tax,
@@ -113,12 +127,12 @@ for i in range(1, NUM_TRANSACTIONS + 1):
     })
 
 
-settlements_df = pd.DataFrame(settlements)
+settlements_df = pd.DataFrame(
+    settlements
+)
 
 
-# ---------------------------------------------------
 # GENERATE BANK TRANSACTIONS
-# ---------------------------------------------------
 
 bank_transactions = []
 
@@ -136,12 +150,12 @@ for i in range(1, NUM_TRANSACTIONS + 1):
     })
 
 
-bank_df = pd.DataFrame(bank_transactions)
+bank_df = pd.DataFrame(
+    bank_transactions
+)
 
 
-# ---------------------------------------------------
 # GENERATE LEDGER
-# ---------------------------------------------------
 
 ledger = []
 
@@ -160,166 +174,390 @@ for i in range(1, NUM_TRANSACTIONS + 1):
     })
 
 
-ledger_df = pd.DataFrame(ledger)
+ledger_df = pd.DataFrame(
+    ledger
+)
+
+
+# CREATE GROUND TRUTH
 
 ground_truth = []
-# ---------------------------------------------------
-# CREATE GROUND TRUTH
-# ---------------------------------------------------
 
-for i in range(1, NUM_TRANSACTIONS + 1):
+for i in range(
+    1,
+    NUM_TRANSACTIONS + 1
+):
 
     ground_truth.append({
         "payment_id": f"PAY{i:04d}",
         "expected_status": "MATCHED",
         "expected_exception": ""
     })
-# ---------------------------------------------------
-# CREATE INTENTIONAL EXCEPTIONS
-# ---------------------------------------------------
-
-# 1. Missing settlement
-settlements_df = settlements_df[
-    settlements_df["payment_id"] != "PAY0020"
-]
 
 
-# 2. Amount mismatch
-bank_df.loc[
-    bank_df["bank_id"] == "BANK0030",
-    "credit"
-] -= 400
-
-
-# 3. Wrong UTR
-bank_df.loc[
-    bank_df["bank_id"] == "BANK0040",
-    "utr"
-] = "UTR999999"
-
-
-# 4. Duplicate bank transaction
-duplicate = bank_df[
-    bank_df["bank_id"] == "BANK0050"
-].copy()
-
-duplicate["bank_id"] = "BANK0101"
-
-bank_df = pd.concat(
-    [bank_df, duplicate],
-    ignore_index=True
+ground_truth_df = pd.DataFrame(
+    ground_truth
 )
 
 
-# 5. Date mismatch
-bank_df.loc[
-    bank_df["bank_id"] == "BANK0060",
-    "date"
-] = "2026-08-20"
+# SELECT RANDOM EXCEPTION RECORDS
+
+all_indices = list(
+    range(NUM_TRANSACTIONS)
+)
+
+random.shuffle(all_indices)
 
 
-# 6. Settlement fee mismatch
-settlements_df.loc[
-    settlements_df["settlement_id"] == "SET0070",
-    "fee"
-] += 300
+required_exception_records = (
+    EXCEPTIONS_PER_TYPE * 6
+)
 
-settlements_df.loc[
-    settlements_df["settlement_id"] == "SET0070",
-    "net_amount"
-] -= 300
+selected_indices = all_indices[
+    :required_exception_records
+]
 
-# ---------------------------------------------------
-# UPDATE GROUND TRUTH FOR INTENTIONAL EXCEPTIONS
-# ---------------------------------------------------
 
-ground_truth_df = pd.DataFrame(ground_truth)
+exception_groups = {}
 
-ground_truth_df.loc[
-    ground_truth_df["payment_id"] == "PAY0020",
-    ["expected_status", "expected_exception"]
-] = ["EXCEPTION", "MISSING_SETTLEMENT"]
+position = 0
 
-ground_truth_df.loc[
-    ground_truth_df["payment_id"] == "PAY0030",
-    ["expected_status", "expected_exception"]
-] = ["EXCEPTION", "BANK_AMOUNT_MISMATCH"]
 
-ground_truth_df.loc[
-    ground_truth_df["payment_id"] == "PAY0040",
-    ["expected_status", "expected_exception"]
-] = ["EXCEPTION", "UTR_MISMATCH"]
+exception_types = [
+    "MISSING_SETTLEMENT",
+    "BANK_AMOUNT_MISMATCH",
+    "UTR_MISMATCH",
+    "DUPLICATE_BANK_TRANSACTION",
+    "DATE_MISMATCH",
+    "FEE_MISMATCH"
+]
 
-ground_truth_df.loc[
-    ground_truth_df["payment_id"] == "PAY0050",
-    ["expected_status", "expected_exception"]
-] = ["EXCEPTION", "DUPLICATE_BANK_TRANSACTION"]
 
-ground_truth_df.loc[
-    ground_truth_df["payment_id"] == "PAY0060",
-    ["expected_status", "expected_exception"]
-] = ["EXCEPTION", "DATE_MISMATCH"]
+for exception_type in exception_types:
 
-ground_truth_df.loc[
-    ground_truth_df["payment_id"] == "PAY0070",
-    ["expected_status", "expected_exception"]
-] = ["EXCEPTION", "FEE_MISMATCH"]
-# ---------------------------------------------------
+    indices = selected_indices[
+        position:
+        position + EXCEPTIONS_PER_TYPE
+    ]
+
+    exception_groups[
+        exception_type
+    ] = indices
+
+    position += EXCEPTIONS_PER_TYPE
+
+
+# 1. MISSING SETTLEMENT
+
+missing_settlement_ids = []
+
+for index in exception_groups[
+    "MISSING_SETTLEMENT"
+]:
+
+    payment_id = payments_df.iloc[
+        index
+    ]["payment_id"]
+
+    missing_settlement_ids.append(
+        payment_id
+    )
+
+
+settlements_df = settlements_df[
+    ~settlements_df["payment_id"].isin(
+        missing_settlement_ids
+    )
+].copy()
+
+
+for payment_id in missing_settlement_ids:
+
+    ground_truth_df.loc[
+        ground_truth_df["payment_id"]
+        == payment_id,
+        ["expected_status",
+         "expected_exception"]
+    ] = [
+        "EXCEPTION",
+        "MISSING_SETTLEMENT"
+    ]
+
+
+# 2. BANK AMOUNT MISMATCH
+
+amount_mismatch_bank_ids = []
+
+for index in exception_groups[
+    "BANK_AMOUNT_MISMATCH"
+]:
+
+    payment_id = payments_df.iloc[
+        index
+    ]["payment_id"]
+
+    settlement = settlements[
+        index
+    ]
+
+    bank_id = f"BANK{index + 1:04d}"
+
+    amount_mismatch_bank_ids.append(
+        bank_id
+    )
+
+    bank_df.loc[
+        bank_df["bank_id"] == bank_id,
+        "credit"
+    ] -= 400
+
+    ground_truth_df.loc[
+        ground_truth_df["payment_id"]
+        == payment_id,
+        ["expected_status",
+         "expected_exception"]
+    ] = [
+        "EXCEPTION",
+        "BANK_AMOUNT_MISMATCH"
+    ]
+
+
+# 3. UTR MISMATCH
+
+for index in exception_groups[
+    "UTR_MISMATCH"
+]:
+
+    payment_id = payments_df.iloc[
+        index
+    ]["payment_id"]
+
+    bank_id = f"BANK{index + 1:04d}"
+
+
+
+    bank_df.loc[
+        bank_df["bank_id"] == bank_id,
+        "utr"
+    ] = f"WRONG{index + 1:06d}"
+
+    ground_truth_df.loc[
+        ground_truth_df["payment_id"]
+        == payment_id,
+        ["expected_status",
+         "expected_exception"]
+    ] = [
+        "EXCEPTION",
+        "UTR_MISMATCH"
+    ]
+
+
+# 4. DUPLICATE BANK TRANSACTION
+
+duplicate_count = 1
+
+for index in exception_groups[
+    "DUPLICATE_BANK_TRANSACTION"
+]:
+
+    payment_id = payments_df.iloc[
+        index
+    ]["payment_id"]
+
+    bank_id = f"BANK{index + 1:04d}"
+
+    original = bank_df[
+        bank_df["bank_id"] == bank_id
+    ].copy()
+
+    if not original.empty:
+
+        duplicate = original.copy()
+
+        duplicate["bank_id"] = (
+            f"BANKD{duplicate_count:04d}"
+        )
+
+        bank_df = pd.concat(
+            [
+                bank_df,
+                duplicate
+            ],
+            ignore_index=True
+        )
+
+        duplicate_count += 1
+
+    ground_truth_df.loc[
+        ground_truth_df["payment_id"]
+        == payment_id,
+        ["expected_status",
+         "expected_exception"]
+    ] = [
+        "EXCEPTION",
+        "DUPLICATE_BANK_TRANSACTION"
+    ]
+
+
+# 5. DATE MISMATCH
+
+for index in exception_groups[
+    "DATE_MISMATCH"
+]:
+
+    payment_id = payments_df.iloc[
+        index
+    ]["payment_id"]
+
+    bank_id = f"BANK{index + 1:04d}"
+
+    bank_df.loc[
+        bank_df["bank_id"] == bank_id,
+        "date"
+    ] = "2026-08-20"
+
+    ground_truth_df.loc[
+        ground_truth_df["payment_id"]
+        == payment_id,
+        ["expected_status",
+         "expected_exception"]
+    ] = [
+        "EXCEPTION",
+        "DATE_MISMATCH"
+    ]
+
+
+# 6. FEE MISMATCH
+
+for index in exception_groups[
+    "FEE_MISMATCH"
+]:
+
+    payment_id = payments_df.iloc[
+        index
+    ]["payment_id"]
+
+    settlement_id = f"SET{index + 1:04d}"
+
+    settlements_df.loc[
+        settlements_df["settlement_id"]
+        == settlement_id,
+        "fee"
+    ] += 300
+
+    settlements_df.loc[
+        settlements_df["settlement_id"]
+        == settlement_id,
+        "net_amount"
+    ] -= 300
+
+    ground_truth_df.loc[
+        ground_truth_df["payment_id"]
+        == payment_id,
+        ["expected_status",
+         "expected_exception"]
+    ] = [
+        "EXCEPTION",
+        "FEE_MISMATCH"
+    ]
+
+
 # SAVE FILES
-# ---------------------------------------------------
 
 payments_df.to_csv(
-    os.path.join(DATA_DIR, "payments.csv"),
+    os.path.join(
+        DATA_DIR,
+        "payments.csv"
+    ),
     index=False
 )
 
 settlements_df.to_csv(
-    os.path.join(DATA_DIR, "settlements.csv"),
+    os.path.join(
+        DATA_DIR,
+        "settlements.csv"
+    ),
     index=False
 )
 
 bank_df.to_csv(
-    os.path.join(DATA_DIR, "bank_transactions.csv"),
+    os.path.join(
+        DATA_DIR,
+        "bank_transactions.csv"
+    ),
     index=False
 )
 
 ledger_df.to_csv(
-    os.path.join(DATA_DIR, "ledger.csv"),
+    os.path.join(
+        DATA_DIR,
+        "ledger.csv"
+    ),
     index=False
 )
 
 ground_truth_df.to_csv(
-    os.path.join(DATA_DIR, "ground_truth.csv"),
+    os.path.join(
+        DATA_DIR,
+        "ground_truth.csv"
+    ),
     index=False
 )
 
+
+# SUMMARY
+
+print("\n")
+print("=" * 65)
+print("              FINGUARD AI")
+print("        BENCHMARK V2 DATA GENERATOR")
+print("=" * 65)
+
 print(
-    f"Ground truth saved to: "
-    f"{os.path.join(DATA_DIR, 'ground_truth.csv')}"
+    f"\nPayments generated      : "
+    f"{len(payments_df)}"
 )
 
-# ---------------------------------------------------
-# DISPLAY SUMMARY
-# ---------------------------------------------------
+print(
+    f"Settlements generated   : "
+    f"{len(settlements_df)}"
+)
 
-print("\n====================================")
-print("   FINGUARD AI DATA GENERATOR")
-print("====================================")
+print(
+    f"Bank transactions       : "
+    f"{len(bank_df)}"
+)
 
-print(f"\nPayments generated:     {len(payments_df)}")
-print(f"Settlements generated: {len(settlements_df)}")
-print(f"Bank transactions:     {len(bank_df)}")
-print(f"Ledger records:         {len(ledger_df)}")
+print(
+    f"Ledger records          : "
+    f"{len(ledger_df)}"
+)
 
-print("\nIntentional exceptions:")
-print("1. Missing settlement      → PAY0020")
-print("2. Amount mismatch         → BANK0030")
-print("3. Wrong UTR               → BANK0040")
-print("4. Duplicate transaction   → BANK0050")
-print("5. Date mismatch           → BANK0060")
-print("6. Fee mismatch            → SET0070")
+print(
+    f"Ground truth records    : "
+    f"{len(ground_truth_df)}"
+)
+
+
+print("\nInjected exceptions:")
+
+for exception_type in exception_types:
+
+    print(
+        f"{exception_type:<30} : "
+        f"{len(exception_groups[exception_type])}"
+    )
+
+
+print("\nTotal intentional exceptions:")
+
+print(
+    f"{required_exception_records}"
+)
+
 
 print("\nData saved to:")
+
 print(DATA_DIR)
 
-print("\n====================================")
+print("=" * 65)

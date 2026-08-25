@@ -1,18 +1,12 @@
 import pandas as pd
 import os
 
-
-# ============================================================
 # 1. PATHS
-# ============================================================
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 
-
-# ============================================================
 # 2. LOAD DATA
-# ============================================================
 
 ground_truth_path = os.path.join(
     DATA_DIR,
@@ -27,10 +21,7 @@ predictions_path = os.path.join(
 ground_truth = pd.read_csv(ground_truth_path)
 predictions = pd.read_csv(predictions_path)
 
-
-# ============================================================
 # 3. CLEAN COLUMNS
-# ============================================================
 
 ground_truth["expected_status"] = (
     ground_truth["expected_status"]
@@ -58,10 +49,7 @@ predictions["exception_type"] = (
     .str.strip()
 )
 
-
-# ============================================================
 # 4. MERGE GROUND TRUTH AND PREDICTIONS
-# ============================================================
 
 evaluation = ground_truth.merge(
     predictions,
@@ -69,17 +57,12 @@ evaluation = ground_truth.merge(
     how="left"
 )
 
-
-# ============================================================
 # 5. MAKE SURE WE HAVE 100 RECORDS
-# ============================================================
 
 total_records = int(len(evaluation))
 
 
-# ============================================================
 # 6. STATUS COMPARISON
-# ============================================================
 
 evaluation["status_correct"] = (
     evaluation["expected_status"]
@@ -100,10 +83,7 @@ accuracy = (
     correct_status / total_records * 100
 )
 
-
-# ============================================================
 # 7. EXPECTED EXCEPTIONS
-# ============================================================
 
 expected_exceptions = evaluation[
     evaluation["expected_status"] == "EXCEPTION"
@@ -113,10 +93,7 @@ expected_exception_count = int(
     len(expected_exceptions)
 )
 
-
-# ============================================================
 # 8. DETECTED EXCEPTIONS
-# ============================================================
 
 detected_exceptions = evaluation[
     evaluation["status"] == "EXCEPTION"
@@ -126,10 +103,7 @@ detected_exception_count = int(
     len(detected_exceptions)
 )
 
-
-# ============================================================
 # 9. CORRECT EXCEPTION CLASSIFICATION
-# ============================================================
 
 correct_exception_types = evaluation[
     (evaluation["expected_status"] == "EXCEPTION")
@@ -146,10 +120,7 @@ correct_exception_count = int(
     len(correct_exception_types)
 )
 
-
-# ============================================================
 # 10. EXCEPTION RECALL
-# ============================================================
 
 if expected_exception_count > 0:
 
@@ -163,10 +134,7 @@ else:
 
     exception_recall = 0
 
-
-# ============================================================
 # 11. MATCH RECORDS
-# ============================================================
 
 actual_matches = evaluation[
     evaluation["expected_status"] == "MATCHED"
@@ -196,9 +164,7 @@ correct_match_count = int(
 )
 
 
-# ============================================================
 # 12. PRECISION
-# ============================================================
 
 if predicted_match_count > 0:
 
@@ -213,9 +179,7 @@ else:
     precision = 0
 
 
-# ============================================================
 # 13. RECALL
-# ============================================================
 
 if actual_match_count > 0:
 
@@ -230,9 +194,7 @@ else:
     recall = 0
 
 
-# ============================================================
 # 14. F1 SCORE
-# ============================================================
 
 if precision + recall > 0:
 
@@ -246,9 +208,7 @@ else:
     f1_score = 0
 
 
-# ============================================================
 # 15. FALSE MATCHES
-# ============================================================
 
 false_matches = evaluation[
     (evaluation["expected_status"] == "EXCEPTION")
@@ -261,9 +221,7 @@ false_match_count = int(
 )
 
 
-# ============================================================
 # 16. MISSED EXCEPTIONS
-# ============================================================
 
 missed_exceptions = evaluation[
     (evaluation["expected_status"] == "EXCEPTION")
@@ -276,9 +234,7 @@ missed_exception_count = int(
 )
 
 
-# ============================================================
 # 17. WRONG EXCEPTION CLASSIFICATION
-# ============================================================
 
 wrong_classification = evaluation[
     (evaluation["expected_status"] == "EXCEPTION")
@@ -295,10 +251,7 @@ wrong_classification_count = int(
     len(wrong_classification)
 )
 
-
-# ============================================================
 # 18. DISPLAY REPORT
-# ============================================================
 
 print("\n")
 print("=" * 65)
@@ -391,9 +344,7 @@ print(
 )
 
 
-# ============================================================
 # 19. SHOW WRONG CLASSIFICATIONS
-# ============================================================
 
 if wrong_classification_count > 0:
 
@@ -417,9 +368,7 @@ if wrong_classification_count > 0:
         )
 
 
-# ============================================================
 # 20. SHOW MISSED EXCEPTIONS
-# ============================================================
 
 if missed_exception_count > 0:
 
@@ -439,9 +388,7 @@ if missed_exception_count > 0:
         )
 
 
-# ============================================================
 # 21. SAVE EVALUATION
-# ============================================================
 
 evaluation_path = os.path.join(
     DATA_DIR,
