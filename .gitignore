@@ -1,16 +1,83 @@
-# Virtual environment
-venv/
-
-# Python cache
+# ==============================
+# Python
+# ==============================
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+.pytest_cache/
 
-# Environment variables / secrets
-.env
+# ==============================
+# Virtual environments
+# ==============================
+venv/
+.venv/
+finguard_env/
 
-# VS Code
+# ==============================
+# IDE
+# ==============================
 .vscode/
+.idea/
 
-# OS files
+# ==============================
+# Jupyter
+# ==============================
+.ipynb_checkpoints/
+
+# ==============================
+# OS
+# ==============================
 .DS_Store
 Thumbs.db
+
+# ==============================
+# Logs / temporary files
+# ==============================
+*.log
+*.tmp
+*.temp
+
+# ==============================
+# Development backups
+# ==============================
+*_backup.py
+
+# ==============================
+# Experimental / intermediate AI files
+# ==============================
+data/ai_controller_results.csv
+data/ai_controller_v2_results.csv
+data/ai_controller_v3_results.csv
+data/ai_controller_v4_results.csv
+data/ai_controller_v5_results.csv
+data/ai_controller_v6_results.csv
+
+data/ai_model_results.csv
+data/ai_test.csv
+data/ai_training.csv
+data/ai_validation.csv
+
+data/exception_ai_dataset.csv
+data/exception_ai_final_predictions.csv
+data/exception_ai_final_results.csv
+data/exception_ai_results.csv
+data/exception_ai_training_augmented.csv
+data/exception_ai_v2_dataset.csv
+data/exception_ai_v2_results.csv
+
+# Old generated outputs
+data/evaluation_results.csv
+data/reconciliation_results.csv
+
+# ==============================
+# Development-only scripts
+# ==============================
+backend/data_ingestion.py
+backend/test_data_ingestion.py
+backend/generate_*.py
+backend/train_ai.py
+backend/train_exception_ai.py
+# Unused model artifacts
+models/fin_guard_exception_classifier.pkl
+models/fin_guard_exception_classifier_final.pkl
+models/fin_guard_matcher.pkl

@@ -1,13 +1,21 @@
 import os
 import time
 
+import joblib
 import pandas as pd
 
 
-# 1. LOAD DATA
+# ============================================================
+# PATHS
+# ============================================================
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
+MODEL_PATH = os.path.join(
+    BASE_DIR,
+    "models",
+    "fin_guard_matcher.pkl"
+)
 
 payments = pd.read_csv(
     os.path.join(DATA_DIR, "payments.csv")
@@ -21,12 +29,54 @@ bank = pd.read_csv(
     os.path.join(DATA_DIR, "bank_transactions.csv")
 )
 
+
+# ============================================================
+# LOAD AI MODEL
+# ============================================================
+
+try:
+    ai_model = joblib.load(MODEL_PATH)
+    AI_AVAILABLE = True
+except Exception as error:
+    ai_model = None
+    AI_AVAILABLE = False
+
+    print(
+        f"\nWARNING: AI model could not be loaded: {error}"
+    )
+
+
+AI_FEATURES = [
+    "amount_difference",
+    "date_difference",
+    "utr_match",
+    "gross_amount_difference",
+    "fee_difference",
+    "tax_difference",
+    "net_amount_difference"
+]
+
+
+# ============================================================
+# AI CONFIGURATION
+# ============================================================
+
+AI_MIN_CONFIDENCE = 0.85
+AI_MIN_MARGIN = 0.10
+
+
+# ============================================================
+# START TIMER
+# ============================================================
+
 start_time = time.time()
 
 results = []
 
 
-# 2. RESULT HELPER
+# ============================================================
+# RESULT HELPER
+# ============================================================
 
 def add_result(
     payment_id,
@@ -37,7 +87,9 @@ def add_result(
     settlement_id="",
     bank_id="",
     evidence="",
-    recommended_action=""
+    recommended_action="",
+    ai_score=None,
+    ai_decision=""
 ):
 
     results.append({
@@ -50,10 +102,148 @@ def add_result(
         "reason": reason,
         "evidence": evidence,
         "recommended_action": recommended_action,
+        "ai_score": ai_score,
+        "ai_decision": ai_decision,
     })
 
 
-# 3. RECONCILIATION ENGINE
+# ============================================================
+# AI CANDIDATE SCORING
+# ============================================================
+
+def score_bank_candidates(
+    settlement,
+    expected_net,
+    expected_fee,
+    expected_tax,
+    candidates
+):
+
+    if not AI_AVAILABLE:
+        return None
+
+    if candidates.empty:
+        return None
+
+    candidate_data = candidates.copy()
+
+    candidate_data["credit"] = pd.to_numeric(
+        candidate_data["credit"],
+        errors="coerce"
+    )
+
+    candidate_data["normalized_date"] = pd.to_datetime(
+        candidate_data["date"],
+        errors="coerce"
+    )
+
+    settlement_date = pd.to_datetime(
+        settlement["date"]
+    )
+
+    actual_fee = float(
+        settlement["fee"]
+    )
+
+    actual_tax = float(
+        settlement["tax"]
+    )
+
+    actual_net = float(
+        settlement["net_amount"]
+    )
+
+    gross_amount = float(
+        settlement["gross_amount"]
+    )
+
+    # --------------------------------------------------------
+    # Build the same feature structure used during training.
+    # --------------------------------------------------------
+
+    candidate_data["amount_difference"] = (
+        candidate_data["credit"]
+        - expected_net
+    ).abs()
+
+    candidate_data["date_difference"] = (
+        candidate_data["normalized_date"]
+        - settlement_date
+    ).abs().dt.days
+
+    expected_utr = str(
+        settlement["utr"]
+    )
+
+    candidate_data["utr_match"] = (
+        candidate_data["utr"]
+        .astype(str)
+        == expected_utr
+    ).astype(int)
+
+    candidate_data["gross_amount_difference"] = (
+        candidate_data["credit"]
+        - gross_amount
+    ).abs()
+
+    candidate_data["fee_difference"] = (
+        abs(actual_fee - expected_fee)
+    )
+
+    candidate_data["tax_difference"] = (
+        abs(actual_tax - expected_tax)
+    )
+
+    candidate_data["net_amount_difference"] = (
+        candidate_data["credit"]
+        - actual_net
+    ).abs()
+
+    # --------------------------------------------------------
+    # Remove rows with invalid feature values.
+    # --------------------------------------------------------
+
+    feature_data = candidate_data[
+        AI_FEATURES
+    ].copy()
+
+    feature_data = feature_data.fillna(0)
+
+    # --------------------------------------------------------
+    # Predict probability of MATCH.
+    # --------------------------------------------------------
+
+    probabilities = ai_model.predict_proba(
+        feature_data
+    )
+
+    # The positive class is label 1.
+    positive_class_index = list(
+        ai_model.classes_
+    ).index(1)
+
+    candidate_data["ai_score"] = (
+        probabilities[
+            :,
+            positive_class_index
+        ]
+    )
+
+    # --------------------------------------------------------
+    # Rank candidates.
+    # --------------------------------------------------------
+
+    candidate_data = candidate_data.sort_values(
+        "ai_score",
+        ascending=False
+    ).reset_index(drop=True)
+
+    return candidate_data
+
+
+# ============================================================
+# RECONCILIATION ENGINE
+# ============================================================
 
 for _, payment in payments.iterrows():
 
@@ -69,7 +259,9 @@ for _, payment in payments.iterrows():
     ]
 
 
+    # ========================================================
     # MISSING SETTLEMENT
+    # ========================================================
 
     if settlement_matches.empty:
 
@@ -87,12 +279,15 @@ for _, payment in payments.iterrows():
                 "Investigate why the payment has not "
                 "appeared in settlement records."
             ),
+            ai_decision="NOT_USED"
         )
 
         continue
 
 
+    # ========================================================
     # SETTLEMENT DATA
+    # ========================================================
 
     settlement = settlement_matches.iloc[0]
 
@@ -121,7 +316,9 @@ for _, payment in payments.iterrows():
     )
 
 
+    # ========================================================
     # GROSS AMOUNT CHECK
+    # ========================================================
 
     if round(payment_amount, 2) != round(
         gross_amount,
@@ -147,15 +344,18 @@ for _, payment in payments.iterrows():
                 f"{gross_amount:.2f}."
             ),
             recommended_action=(
-                "Investigate the payment and "
-                "settlement amount discrepancy."
+                "Investigate the payment and settlement "
+                "amount discrepancy."
             ),
+            ai_decision="NOT_USED"
         )
 
         continue
 
 
+    # ========================================================
     # FEE CHECK
+    # ========================================================
 
     expected_fee = round(
         gross_amount * 0.02,
@@ -194,12 +394,15 @@ for _, payment in payments.iterrows():
                 "Review the settlement fee calculation "
                 "and verify the applicable fee rule."
             ),
+            ai_decision="NOT_USED"
         )
 
         continue
 
 
+    # ========================================================
     # TAX CHECK
+    # ========================================================
 
     expected_tax = round(
         expected_fee * 0.18,
@@ -238,12 +441,15 @@ for _, payment in payments.iterrows():
                 "Review the tax calculation and "
                 "verify the applicable tax rule."
             ),
+            ai_decision="NOT_USED"
         )
 
         continue
 
 
+    # ========================================================
     # NET AMOUNT CHECK
+    # ========================================================
 
     expected_net = round(
         gross_amount
@@ -268,7 +474,8 @@ for _, payment in payments.iterrows():
                 f"Expected settlement net INR "
                 f"{expected_net:.2f}, but settlement "
                 f"reports INR {actual_net:.2f}. "
-                f"Variance: INR {difference:.2f}."
+                f"Variance: INR "
+                f"{difference:.2f}."
             ),
             settlement_id,
             evidence=(
@@ -284,12 +491,15 @@ for _, payment in payments.iterrows():
                 "components to identify the source "
                 "of the net settlement variance."
             ),
+            ai_decision="NOT_USED"
         )
 
         continue
 
 
+    # ========================================================
     # BANK RECONCILIATION
+    # ========================================================
 
     settlement_date = pd.to_datetime(
         settlement["date"]
@@ -301,7 +511,9 @@ for _, payment in payments.iterrows():
     ]
 
 
+    # ========================================================
     # DUPLICATE BANK TRANSACTION
+    # ========================================================
 
     if len(bank_matches) > 1:
 
@@ -323,12 +535,15 @@ for _, payment in payments.iterrows():
                 "Investigate duplicate bank entries "
                 "and determine which transaction is valid."
             ),
+            ai_decision="NOT_USED"
         )
 
         continue
 
 
+    # ========================================================
     # EXACT UTR FOUND
+    # ========================================================
 
     if len(bank_matches) == 1:
 
@@ -353,7 +568,9 @@ for _, payment in payments.iterrows():
         )
 
 
+        # ----------------------------------------------------
         # BANK AMOUNT MISMATCH
+        # ----------------------------------------------------
 
         if round(
             bank_credit,
@@ -391,12 +608,15 @@ for _, payment in payments.iterrows():
                     "Verify the bank credit amount "
                     "against the settlement record."
                 ),
+                ai_decision="NOT_USED"
             )
 
             continue
 
 
+        # ----------------------------------------------------
         # DATE MISMATCH
+        # ----------------------------------------------------
 
         if date_difference > 3:
 
@@ -426,12 +646,15 @@ for _, payment in payments.iterrows():
                     "transaction dates and investigate "
                     "the timing difference."
                 ),
+                ai_decision="NOT_USED"
             )
 
             continue
 
 
-        # SUCCESSFUL MATCH
+        # ----------------------------------------------------
+        # SUCCESSFUL EXACT MATCH
+        # ----------------------------------------------------
 
         add_result(
             payment_id,
@@ -451,320 +674,254 @@ for _, payment in payments.iterrows():
                 f"UTR matches; dates are within tolerance."
             ),
             recommended_action="No action required.",
+            ai_decision="NOT_REQUIRED_EXACT_MATCH"
         )
 
         continue
 
 
-    # NO EXACT UTR FOUND
-
-    # INVESTIGATE FOR UTR MISMATCH
+    # ========================================================
+    # NO EXACT UTR
+    #
+    # AI CANDIDATE SEARCH
+    # ========================================================
 
     bank_candidates = bank.copy()
-
-
-    # Normalize bank amount
 
     bank_candidates["credit"] = pd.to_numeric(
         bank_candidates["credit"],
         errors="coerce"
     )
 
-
-    # Normalize bank date
-
     bank_candidates["normalized_date"] = pd.to_datetime(
         bank_candidates["date"],
         errors="coerce"
     )
 
-
-    # Candidate search:
-    #
-    # 1. Exact expected amount
-    # 2. Exact settlement date
-
-    exact_date_candidates = bank_candidates[
-        (
-            bank_candidates["credit"].round(2)
-            == round(expected_net, 2)
-        )
-        &
-        (
-            bank_candidates["normalized_date"]
-            == settlement_date
-        )
-    ].copy()
-
-
-    # Identify UTRs that legitimately belong to settlements
-
-    known_settlement_utrs = set(
-        settlements["utr"]
-        .astype(str)
-        .tolist()
-    )
-
-
-    # Remove the expected UTR.
-    #
-    # It was already searched directly above.
-    known_settlement_utrs.discard(utr)
-
-
-    # Remove candidates whose UTR already belongs to another
-
-
-    possible_utr_mismatches = (
-        exact_date_candidates[
-            ~exact_date_candidates["utr"]
-            .astype(str)
-            .isin(known_settlement_utrs)
+    bank_candidates = bank_candidates.dropna(
+        subset=[
+            "credit",
+            "normalized_date"
         ]
-        .copy()
-    )
+    ).copy()
 
 
-    # Strong UTR mismatch
-
-    if len(possible_utr_mismatches) == 1:
-
-        candidate = (
-            possible_utr_mismatches.iloc[0]
-        )
-
-        candidate_bank_id = candidate[
-            "bank_id"
-        ]
-
-        candidate_utr = str(
-            candidate["utr"]
-        )
-
-        candidate_amount = float(
-            candidate["credit"]
-        )
-
-        candidate_date = (
-            candidate["normalized_date"]
-        )
-
-        date_difference = abs(
-            (
-                candidate_date
-                - settlement_date
-            ).days
-        )
-
-
-        add_result(
-            payment_id,
-            "EXCEPTION",
-            "UTR_MISMATCH",
-            99,
-            (
-                f"Expected UTR {utr}, but bank "
-                f"transaction {candidate_bank_id} "
-                f"has UTR {candidate_utr}. "
-                f"Amount and date match."
-            ),
-            settlement_id,
-            candidate_bank_id,
-            evidence=(
-                f"Expected UTR: {utr}; "
-                f"Bank UTR: {candidate_utr}; "
-                f"Expected amount: INR "
-                f"{expected_net:.2f}; "
-                f"Bank amount: INR "
-                f"{candidate_amount:.2f}; "
-                f"Settlement date: "
-                f"{settlement_date.date()}; "
-                f"Bank date: "
-                f"{candidate_date.date()}; "
-                f"Date difference: "
-                f"{date_difference} days."
-            ),
-            recommended_action=(
-                "Verify the bank UTR against the "
-                "settlement record."
-            ),
-        )
-
-        continue
-
-
-    # SECONDARY UTR INVESTIGATION
-
-    # Amount + date within 3 days
+    # --------------------------------------------------------
+    # First narrow the search to plausible candidates.
+    #
+    # We use a wider financial window than the old exact
+    # amount/date search so that AI can actually rank
+    # ambiguous candidates.
+    # --------------------------------------------------------
 
     bank_candidates["date_difference"] = (
         bank_candidates["normalized_date"]
         - settlement_date
     ).abs().dt.days
 
+    bank_candidates["amount_difference"] = (
+        bank_candidates["credit"]
+        - expected_net
+    ).abs()
 
-    nearby_candidates = bank_candidates[
+
+    # Candidates within a reasonable financial window.
+    candidate_pool = bank_candidates[
         (
-            bank_candidates["credit"].round(2)
-            == round(expected_net, 2)
+            bank_candidates["date_difference"]
+            <= 7
         )
         &
         (
-            bank_candidates["date_difference"]
-            <= 3
+            bank_candidates["amount_difference"]
+            <= max(
+                500,
+                expected_net * 0.10
+            )
         )
     ].copy()
 
 
-    possible_nearby_mismatches = (
-        nearby_candidates[
-            ~nearby_candidates["utr"]
-            .astype(str)
-            .isin(known_settlement_utrs)
-        ]
-        .copy()
-    )
+    # --------------------------------------------------------
+    # Don't let the expected UTR be considered as a
+    # candidate here. It was already checked above.
+    # --------------------------------------------------------
 
-
-    if len(possible_nearby_mismatches) == 1:
-
-        candidate = (
-            possible_nearby_mismatches.iloc[0]
-        )
-
-        candidate_bank_id = candidate[
-            "bank_id"
-        ]
-
-        candidate_utr = str(
-            candidate["utr"]
-        )
-
-        date_difference = int(
-            candidate["date_difference"]
-        )
-
-
-        add_result(
-            payment_id,
-            "EXCEPTION",
-            "UTR_MISMATCH",
-            95,
-            (
-                f"Expected UTR {utr}, but bank "
-                f"transaction {candidate_bank_id} "
-                f"has UTR {candidate_utr}. "
-                f"Amount matches and date is within "
-                f"3 days."
-            ),
-            settlement_id,
-            candidate_bank_id,
-            evidence=(
-                f"Expected UTR: {utr}; "
-                f"Bank UTR: {candidate_utr}; "
-                f"Expected amount: INR "
-                f"{expected_net:.2f}; "
-                f"Bank amount: INR "
-                f"{float(candidate['credit']):.2f}; "
-                f"Date difference: "
-                f"{date_difference} days."
-            ),
-            recommended_action=(
-                "Verify the bank UTR against the "
-                "settlement record."
-            ),
-        )
-
-        continue
-
-    # BENCHMARK FALLBACK FOR UTR MISMATCH
-
-    # In the synthetic benchmark, payment and bank IDs share
-    # the same numeric identifier:
-
-    # PAY0468 -> BANK0468
-    # PAY0491 -> BANK0491
-
-    # Use this ONLY as a deterministic benchmark signal.
-
-    payment_number = str(payment_id).replace(
-        "PAY", ""
-    )
-
-    expected_bank_id = f"BANK{payment_number}"
-
-    benchmark_candidate = bank[
-        bank["bank_id"].astype(str)
-        == expected_bank_id
+    candidate_pool = candidate_pool[
+        candidate_pool["utr"].astype(str)
+        != utr
     ].copy()
 
-    if len(benchmark_candidate) == 1:
 
-        candidate = benchmark_candidate.iloc[0]
+    # ========================================================
+    # AI SCORING
+    # ========================================================
 
-        candidate_amount = float(
-            candidate["credit"]
+    ranked_candidates = score_bank_candidates(
+        settlement,
+        expected_net,
+        expected_fee,
+        expected_tax,
+        candidate_pool
+    )
+
+
+    if (
+        ranked_candidates is not None
+        and not ranked_candidates.empty
+    ):
+
+        best = ranked_candidates.iloc[0]
+
+        best_score = float(
+            best["ai_score"]
         )
 
-        candidate_date = pd.to_datetime(
-            candidate["date"]
+        best_bank_id = str(
+            best["bank_id"]
         )
 
-        candidate_utr = str(
-            candidate["utr"]
+        best_utr = str(
+            best["utr"]
         )
 
-        date_difference = abs(
-            (candidate_date - settlement_date).days
+        best_amount = float(
+            best["credit"]
         )
 
-        # Candidate must still satisfy the financial
-        # conditions before being called a UTR mismatch.
+        best_date = pd.to_datetime(
+            best["normalized_date"]
+        )
+
+        best_date_difference = int(
+            best["date_difference"]
+        )
+
+
+        if len(ranked_candidates) > 1:
+
+            second_score = float(
+                ranked_candidates.iloc[1]["ai_score"]
+            )
+
+        else:
+
+            second_score = 0.0
+
+
+        score_margin = (
+            best_score
+            - second_score
+        )
+
+
+        # ====================================================
+        # HIGH-CONFIDENCE AI CANDIDATE
+        # ====================================================
 
         if (
-            round(candidate_amount, 2)
-            == round(expected_net, 2)
-            and date_difference <= 3
-            and candidate_utr != utr
+            best_score >= AI_MIN_CONFIDENCE
+            and score_margin >= AI_MIN_MARGIN
         ):
 
             add_result(
                 payment_id,
                 "EXCEPTION",
                 "UTR_MISMATCH",
-                99,
+                round(
+                    best_score * 100,
+                    2
+                ),
                 (
-                    f"Expected UTR {utr}, but bank "
-                    f"transaction {expected_bank_id} "
-                    f"has UTR {candidate_utr}. "
-                    f"Amount and date are consistent."
+                    f"AI identified bank transaction "
+                    f"{best_bank_id} as the strongest "
+                    f"candidate with a "
+                    f"{best_score * 100:.2f}% match score, "
+                    f"but its UTR does not match the "
+                    f"settlement UTR."
                 ),
                 settlement_id,
-                expected_bank_id,
+                best_bank_id,
                 evidence=(
                     f"Expected UTR: {utr}; "
-                    f"Bank UTR: {candidate_utr}; "
+                    f"Candidate UTR: {best_utr}; "
                     f"Expected amount: INR "
                     f"{expected_net:.2f}; "
-                    f"Bank amount: INR "
-                    f"{candidate_amount:.2f}; "
-                    f"Settlement date: "
-                    f"{settlement_date.date()}; "
-                    f"Bank date: "
-                    f"{candidate_date.date()}; "
+                    f"Candidate amount: INR "
+                    f"{best_amount:.2f}; "
                     f"Date difference: "
-                    f"{date_difference} days."
+                    f"{best_date_difference} days; "
+                    f"AI score: "
+                    f"{best_score * 100:.2f}%; "
+                    f"Score margin over second candidate: "
+                    f"{score_margin * 100:.2f}%."
                 ),
                 recommended_action=(
                     "Verify the bank UTR against the "
-                    "settlement record."
-                )
+                    "settlement record. AI identified "
+                    "a strong candidate but did not "
+                    "override the UTR control."
+                ),
+                ai_score=round(
+                    best_score,
+                    4
+                ),
+                ai_decision="HIGH_CONFIDENCE_UTR_MISMATCH"
             )
 
             continue
 
 
-    # NO SUITABLE BANK TRANSACTION
+        # ====================================================
+        # AMBIGUOUS AI RESULT
+        # ====================================================
+
+        add_result(
+            payment_id,
+            "EXCEPTION",
+            "AMBIGUOUS_BANK_CANDIDATE",
+            round(
+                best_score * 100,
+                2
+            ),
+            (
+                f"AI found a strongest bank candidate "
+                f"{best_bank_id} with a "
+                f"{best_score * 100:.2f}% match score, "
+                f"but the candidate did not meet the "
+                f"confidence and separation thresholds."
+            ),
+            settlement_id,
+            best_bank_id,
+            evidence=(
+                f"Best candidate: {best_bank_id}; "
+                f"Candidate UTR: {best_utr}; "
+                f"Expected UTR: {utr}; "
+                f"AI score: "
+                f"{best_score * 100:.2f}%; "
+                f"Second-best score: "
+                f"{second_score * 100:.2f}%; "
+                f"Score margin: "
+                f"{score_margin * 100:.2f}%."
+            ),
+            recommended_action=(
+                "Review the AI-ranked bank candidates "
+                "and verify the correct transaction "
+                "before resolving the exception."
+            ),
+            ai_score=round(
+                best_score,
+                4
+            ),
+            ai_decision="AMBIGUOUS_REVIEW"
+        )
+
+        continue
+
+
+    # ========================================================
+    # NO AI CANDIDATE
+    # ========================================================
 
     add_result(
         payment_id,
@@ -774,31 +931,40 @@ for _, payment in payments.iterrows():
         (
             f"No bank transaction found for UTR "
             f"{utr}, and no sufficiently strong "
-            f"candidate was found using amount and date."
+            f"AI candidate was found."
         ),
         settlement_id,
         evidence=(
             f"Expected UTR: {utr}; "
             f"Expected bank amount: INR "
             f"{expected_net:.2f}; "
-            f"No sufficiently strong bank "
+            f"No sufficiently strong AI "
             f"candidate found."
         ),
         recommended_action=(
             "Investigate whether the settlement "
             "is missing from the bank statement."
         ),
+        ai_decision=(
+            "NO_CANDIDATE"
+            if AI_AVAILABLE
+            else "AI_UNAVAILABLE"
+        )
     )
 
 
-# 4. CREATE RESULTS DATAFRAME
+# ============================================================
+# CREATE RESULTS DATAFRAME
+# ============================================================
 
 results_df = pd.DataFrame(
     results
 )
 
 
-# 5. CALCULATE METRICS
+# ============================================================
+# CALCULATE METRICS
+# ============================================================
 
 total_records = len(
     results_df
@@ -839,7 +1005,39 @@ throughput = (
 )
 
 
-# 6. SAVE RESULTS
+# ============================================================
+# AI METRICS
+# ============================================================
+
+ai_used = len(
+    results_df[
+        results_df["ai_decision"].astype(str)
+        .str.contains(
+            "HIGH_CONFIDENCE|AMBIGUOUS",
+            regex=True,
+            na=False
+        )
+    ]
+)
+
+high_confidence_ai = len(
+    results_df[
+        results_df["ai_decision"].astype(str)
+        == "HIGH_CONFIDENCE_UTR_MISMATCH"
+    ]
+)
+
+ambiguous_ai = len(
+    results_df[
+        results_df["ai_decision"].astype(str)
+        == "AMBIGUOUS_REVIEW"
+    ]
+)
+
+
+# ============================================================
+# SAVE RESULTS
+# ============================================================
 
 results_path = os.path.join(
     DATA_DIR,
@@ -852,19 +1050,35 @@ results_df.to_csv(
 )
 
 
-# 7. DISPLAY REPORT
+# ============================================================
+# REPORT
+# ============================================================
 
-print("\n" + "=" * 65)
+print(
+    "\n" + "=" * 70
+)
 
 print(
     "                 FINGUARD AI"
 )
 
 print(
-    "          SMART RECONCILIATION ENGINE"
+    "       AI-ASSISTED RECONCILIATION ENGINE"
 )
 
-print("=" * 65)
+print(
+    "=" * 70
+)
+
+print(
+    f"\nAI model loaded         : "
+    f"{'YES' if AI_AVAILABLE else 'NO'}"
+)
+
+print(
+    f"AI model path           : "
+    f"{MODEL_PATH}"
+)
 
 print(
     f"\nTotal records processed : "
@@ -896,18 +1110,53 @@ print(
     f"{throughput:.2f} records/second"
 )
 
+print(
+    "\n" + "-" * 70
+)
 
-# 8. DISPLAY EXCEPTIONS
+print(
+    "                    AI SUMMARY"
+)
 
-print("\n")
+print(
+    "-" * 70
+)
 
-print("=" * 65)
+print(
+    f"AI-assisted cases       : "
+    f"{ai_used}"
+)
+
+print(
+    f"High-confidence AI      : "
+    f"{high_confidence_ai}"
+)
+
+print(
+    f"AI escalated/review     : "
+    f"{ambiguous_ai}"
+)
+
+print(
+    "-" * 70
+)
+
+
+# ============================================================
+# EXCEPTIONS
+# ============================================================
+
+print(
+    "\n" + "=" * 70
+)
 
 print(
     "                    EXCEPTIONS"
 )
 
-print("=" * 65)
+print(
+    "=" * 70
+)
 
 
 exceptions = results_df[
@@ -943,8 +1192,26 @@ for _, row in exceptions.iterrows():
         f"{row['recommended_action']}"
     )
 
+    if pd.notna(
+        row["ai_score"]
+    ):
+
+        print(
+            f"AI score: "
+            f"{float(row['ai_score']) * 100:.2f}%"
+        )
+
+    print(
+        f"AI decision: "
+        f"{row['ai_decision']}"
+    )
+
 
 print(
     f"\nResults saved to        : "
     f"{results_path}"
+)
+
+print(
+    "=" * 70
 )
