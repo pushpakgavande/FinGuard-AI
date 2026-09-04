@@ -337,7 +337,7 @@ The controller records predictions, confidence, evidence, disagreements, and rev
 - **Cloud Deployment** — Enable scalable deployment on cloud infrastructure
 
 
-### 🎯 Current Scope
+### Current Scope
 
 The current version focuses on:
 
