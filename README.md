@@ -97,12 +97,12 @@ FinGuard AI automates this process and identifies transactions that require inve
 
 FinGuard AI currently identifies the following exception types:
 
-MISSING_SETTLEMENT
-DUPLICATE_BANK_TRANSACTION
-UTR_MISMATCH
-DATE_MISMATCH
-FEE_MISMATCH
-BANK_AMOUNT_MISMATCH
+- `MISSING_SETTLEMENT`
+- `DUPLICATE_BANK_TRANSACTION`
+- `UTR_MISMATCH`
+- `DATE_MISMATCH`
+- `FEE_MISMATCH`
+- `BANK_AMOUNT_MISMATCH`
 
 The deterministic reconciliation engine provides the primary evidence for each exception.
 
@@ -111,18 +111,19 @@ The deterministic reconciliation engine provides the primary evidence for each e
 ### AI Exception Classification
 
 The AI layer predicts the most likely exception category for each transaction.
+
 The model uses transaction and reconciliation context while avoiding direct use of the UTR as an AI feature to reduce the risk of target leakage.
 
 The system evaluates:
-AI prediction
-Prediction confidence
-Second-best prediction
-Agreement with the deterministic engine
-Disagreement reason
-Review priority
+
+- AI prediction
+- Prediction confidence
+- Second-best prediction
+- Agreement with the deterministic engine
+- Disagreement reason
+- Review priority
 
 This allows the AI model to assist reconciliation rather than blindly replacing deterministic financial checks.
-
 
 
 ### Controller & Human-in-the-Loop
@@ -130,21 +131,22 @@ This allows the AI model to assist reconciliation rather than blindly replacing 
 FinGuard AI uses a controller layer to combine deterministic reconciliation evidence with AI predictions.
 
 The controller can:
-Automatically clear transactions when evidence and AI prediction agree with sufficient confidence
-Identify AI/engine disagreements
-Assign confidence bands
-Prioritize exceptions
-Route uncertain cases to human review
-Provide a complete decision record for auditing
+
+- Automatically clear transactions when evidence and AI prediction agree with sufficient confidence
+- Identify AI/engine disagreements
+- Assign confidence bands
+- Prioritize exceptions
+- Route uncertain cases to human review
+- Provide a complete decision record for auditing
 
 This creates a human-in-the-loop workflow rather than treating the AI prediction as the final authority.
-
-
  
+
 ### Dashboard
 
 FinGuard AI includes a Streamlit dashboard for monitoring reconciliation and reviewing exceptions.
 
+```text
 Dashboard
    ├── Overview & Metrics
    ├── Exception Breakdown
@@ -167,7 +169,6 @@ AI Analysis
    ├── Engine Agreement
    ├── Disagreements
    └── Confidence Analysis
-
 
  
 ### Demo & Benchmark Data
@@ -200,6 +201,7 @@ A planned extension is to allow users to provide their own CSV files containing 
 
 The future workflow can be extended to:
 
+```text
 User CSV Files
       |
       v
@@ -220,13 +222,14 @@ Controller V7
       |
       v
 Dashboard
-
 This would allow FinGuard AI to move from a fixed demonstration dataset toward a reusable reconciliation platform capable of processing organization-specific transaction data.
 
 Current status: The repository demonstrates the complete reconciliation, AI classification, controller, and dashboard workflow using synthetic demo data. Custom CSV ingestion is planned as a future enhancement.
 
 
 ### Project Structure
+
+```text
 FinGuard-AI/
 │
 ├── backend/
@@ -255,7 +258,6 @@ FinGuard-AI/
 ├── README.md
 └── requirements.txt
 
-
 ### Installation
 
 Clone the repository:
@@ -269,10 +271,10 @@ Windows
 Activate the virtual environment:
 .\venv\Scripts\Activate.ps1
 
-Install Dependencies
+Install Dependencies:
 pip install -r requirements.txt
 
- Run the Dashboard
+ Run the Dashboard:
 
 Start the Streamlit application:
 python -m streamlit run dashboard/app.py
@@ -301,44 +303,48 @@ The AI model assists with exception classification rather than replacing the rec
 #### Human-in-the-Loop
 Low-confidence or conflicting decisions can be routed for manual investigation.
 
-####Leakage-Aware Evaluation
+#### Leakage-Aware Evaluation
 UTR identifiers are excluded from AI features to reduce the risk of directly exposing transaction identity information to the classifier.
 
-####Auditability
+#### Auditability
 The controller records predictions, confidence, evidence, disagreements, and review decisions.
 
 
 ### Technology Stack
-Python
-Pandas
-Scikit-learn
-Streamlit
-Joblib
-CSV-based financial transaction datasets
+
+- **Python** — Core application and backend development
+- **Pandas** — Data processing and transaction analysis
+- **Scikit-learn** — AI-based exception classification
+- **Streamlit** — Interactive web dashboard
+- **Joblib** — Model serialization and loading
+- **CSV** — Synthetic financial transaction and benchmark datasets
+
 
 ### Future Enhancements
-Custom CSV data ingestion
-Secure file upload
-Database integration
-Real-time transaction processing
-Advanced anomaly detection
-Explainable AI for exception decisions
-Role-based review workflows
-Production-grade authentication and audit logging
-Cloud deployment
 
-### Current Scope
+- **Custom CSV Data Ingestion** — Allow users to provide their own transaction datasets
+- **Secure File Upload** — Add validated and secure file upload capabilities
+- **Database Integration** — Support scalable persistent transaction storage
+- **Real-Time Transaction Processing** — Enable continuous reconciliation and exception detection
+- **Advanced Anomaly Detection** — Detect more complex and previously unseen transaction patterns
+- **Explainable AI** — Provide clear reasoning behind AI-based exception decisions
+- **Role-Based Review Workflows** — Support different permissions and responsibilities for reviewers
+- **Production-Grade Authentication & Audit Logging** — Strengthen security, access control, and traceability
+- **Cloud Deployment** — Enable scalable deployment on cloud infrastructure
+
+
+### 🎯 Current Scope
 
 The current version focuses on:
-Financial transaction reconciliation
-Deterministic exception detection
-AI-based exception classification
-Controller-based decisioning
-Confidence-based routing
-Human review workflow
-Interactive dashboard visualization
-Reproducible synthetic benchmark evaluation
 
+- **Financial Transaction Reconciliation** — Comparing payment, settlement, and bank transaction records
+- **Deterministic Exception Detection** — Identifying rule-based reconciliation discrepancies
+- **AI-Based Exception Classification** — Classifying detected exceptions using machine learning
+- **Controller-Based Decisioning** — Combining deterministic results and AI predictions for final decisions
+- **Confidence-Based Routing** — Routing transactions based on AI confidence and controller rules
+- **Human Review Workflow** — Sending uncertain or conflicting cases for manual review
+- **Interactive Dashboard Visualization** — Providing an interface for monitoring and investigating reconciliation results
+- **Reproducible Synthetic Benchmark Evaluation** — Evaluating system performance using a controlled synthetic dataset
 The included datasets are synthetic demonstration data with intentionally constructed exception scenarios. They are provided to demonstrate and evaluate the system.
 
 Custom user-provided CSV ingestion and processing are planned as a future enhancement.
