@@ -356,6 +356,6 @@ Custom user-provided CSV ingestion and processing are planned as a future enhanc
 
 ### Project
 
-FinGuard AI
+FinGuard AI:
 AI-powered financial reconciliation and exception management system.
 Built to demonstrate the integration of deterministic financial validation, machine learning, automated decision control, and human-in-the-loop review workflows.
