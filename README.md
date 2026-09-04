@@ -107,14 +107,13 @@ BANK_AMOUNT_MISMATCH
 The deterministic reconciliation engine provides the primary evidence for each exception.
 
 
+
 ### AI Exception Classification
 
 The AI layer predicts the most likely exception category for each transaction.
-
 The model uses transaction and reconciliation context while avoiding direct use of the UTR as an AI feature to reduce the risk of target leakage.
 
 The system evaluates:
-
 AI prediction
 Prediction confidence
 Second-best prediction
@@ -125,12 +124,12 @@ Review priority
 This allows the AI model to assist reconciliation rather than blindly replacing deterministic financial checks.
 
 
+
 ### Controller & Human-in-the-Loop
 
 FinGuard AI uses a controller layer to combine deterministic reconciliation evidence with AI predictions.
 
 The controller can:
-
 Automatically clear transactions when evidence and AI prediction agree with sufficient confidence
 Identify AI/engine disagreements
 Assign confidence bands
@@ -140,22 +139,12 @@ Provide a complete decision record for auditing
 
 This creates a human-in-the-loop workflow rather than treating the AI prediction as the final authority.
 
+
  
 ### Dashboard
 
 FinGuard AI includes a Streamlit dashboard for monitoring reconciliation and reviewing exceptions.
 
-Dashboard Capabilities
-Reconciliation overview
-Match and exception metrics
-Exception distribution
-AI prediction analysis
-Human review queue
-Transaction search and tracing
-AI confidence analysis
-Controller decisions
-AI/engine disagreement analysis
-Dashboard Views
 Dashboard
    ├── Overview & Metrics
    ├── Exception Breakdown
@@ -179,17 +168,15 @@ AI Analysis
    ├── Disagreements
    └── Confidence Analysis
 
+
  
 ### Demo & Benchmark Data
 
 The repository currently uses synthetic demo/benchmark data so that the complete reconciliation and AI workflow can be demonstrated consistently and reproducibly.
-
 The demo dataset contains intentionally constructed transaction scenarios, including different types of reconciliation errors. These errors are fixed/injected into the synthetic data deliberately to test whether FinGuard AI can correctly detect and classify the corresponding exceptions.
-
 This allows the project to demonstrate the complete workflow without requiring access to sensitive real-world financial data.
 
 Current Benchmark
-
 The benchmark contains 500 synthetic payment transactions.
 
 | Exception Type | Count |
@@ -205,10 +192,10 @@ The benchmark contains 500 synthetic payment transactions.
 The benchmark ground-truth file is used for evaluation and reproducibility.
 
 
+
 ### Future Data Ingestion
 
 The current version uses the included demo/benchmark CSV files.
-
 A planned extension is to allow users to provide their own CSV files containing payment, settlement, and bank transaction data.
 
 The future workflow can be extended to:
@@ -272,17 +259,14 @@ FinGuard-AI/
 ### Installation
 
 Clone the repository:
-
 git clone https://github.com/pushpakgavande/FinGuard-AI.git
 cd FinGuard-AI
 
 Create a virtual environment:
-
 python -m venv venv
 Windows
 
 Activate the virtual environment:
-
 .\venv\Scripts\Activate.ps1
 
 Install Dependencies
@@ -291,7 +275,6 @@ pip install -r requirements.txt
  Run the Dashboard
 
 Start the Streamlit application:
-
 python -m streamlit run dashboard/app.py
 
 The dashboard will open in your browser.
@@ -302,11 +285,9 @@ The dashboard will open in your browser.
 The project includes evaluation scripts for measuring reconciliation and AI performance.
 
 Run the reconciliation evaluation:
-
 python backend/evaluate.py
 
 Run the AI-specific evaluation:
-
 python backend/evaluate_exception_ai.py
 
 ### Design Principles
@@ -349,7 +330,6 @@ Cloud deployment
 ### Current Scope
 
 The current version focuses on:
-
 Financial transaction reconciliation
 Deterministic exception detection
 AI-based exception classification
@@ -367,7 +347,5 @@ Custom user-provided CSV ingestion and processing are planned as a future enhanc
 ### Project
 
 FinGuard AI
-
 AI-powered financial reconciliation and exception management system.
-
 Built to demonstrate the integration of deterministic financial validation, machine learning, automated decision control, and human-in-the-loop review workflows.
