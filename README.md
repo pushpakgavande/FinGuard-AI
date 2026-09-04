@@ -278,7 +278,7 @@ Activate the virtual environment:
 Install Dependencies:
 pip install -r requirements.txt
 
- Run the Dashboard:
+#### Run the Dashboard:
 
 Start the Streamlit application:
 python -m streamlit run dashboard/app.py
