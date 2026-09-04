@@ -169,7 +169,9 @@ AI Analysis
    ├── Engine Agreement
    ├── Disagreements
    └── Confidence Analysis
+```
 
+---
  
 ### Demo & Benchmark Data
 
@@ -222,6 +224,7 @@ Controller V7
       |
       v
 Dashboard
+```
 This would allow FinGuard AI to move from a fixed demonstration dataset toward a reusable reconciliation platform capable of processing organization-specific transaction data.
 
 Current status: The repository demonstrates the complete reconciliation, AI classification, controller, and dashboard workflow using synthetic demo data. Custom CSV ingestion is planned as a future enhancement.
@@ -257,6 +260,7 @@ FinGuard-AI/
 ├── .gitignore
 ├── README.md
 └── requirements.txt
+```
 
 ### Installation
 
