@@ -93,7 +93,7 @@ FinGuard AI automates this process and identifies transactions that require inve
               Dashboard & Reports
  
 
- Exception Detection
+### Exception Detection
 
 FinGuard AI currently identifies the following exception types:
 
@@ -107,7 +107,7 @@ BANK_AMOUNT_MISMATCH
 The deterministic reconciliation engine provides the primary evidence for each exception.
 
 
- AI Exception Classification
+### AI Exception Classification
 
 The AI layer predicts the most likely exception category for each transaction.
 
@@ -125,7 +125,7 @@ Review priority
 This allows the AI model to assist reconciliation rather than blindly replacing deterministic financial checks.
 
 
- Controller & Human-in-the-Loop
+### Controller & Human-in-the-Loop
 
 FinGuard AI uses a controller layer to combine deterministic reconciliation evidence with AI predictions.
 
@@ -141,7 +141,7 @@ Provide a complete decision record for auditing
 This creates a human-in-the-loop workflow rather than treating the AI prediction as the final authority.
 
  
- Dashboard
+### Dashboard
 
 FinGuard AI includes a Streamlit dashboard for monitoring reconciliation and reviewing exceptions.
 
@@ -180,7 +180,7 @@ AI Analysis
    └── Confidence Analysis
 
  
- Demo & Benchmark Data
+### Demo & Benchmark Data
 
 The repository currently uses synthetic demo/benchmark data so that the complete reconciliation and AI workflow can be demonstrated consistently and reproducibly.
 
@@ -205,7 +205,7 @@ The benchmark contains 500 synthetic payment transactions.
 The benchmark ground-truth file is used for evaluation and reproducibility.
 
 
- Future Data Ingestion
+### Future Data Ingestion
 
 The current version uses the included demo/benchmark CSV files.
 
@@ -239,7 +239,7 @@ This would allow FinGuard AI to move from a fixed demonstration dataset toward a
 Current status: The repository demonstrates the complete reconciliation, AI classification, controller, and dashboard workflow using synthetic demo data. Custom CSV ingestion is planned as a future enhancement.
 
 
- Project Structure
+### Project Structure
 FinGuard-AI/
 │
 ├── backend/
@@ -269,7 +269,7 @@ FinGuard-AI/
 └── requirements.txt
 
 
- Installation
+### Installation
 
 Clone the repository:
 
@@ -297,7 +297,7 @@ python -m streamlit run dashboard/app.py
 The dashboard will open in your browser.
 
 
- Evaluation
+### Evaluation
 
 The project includes evaluation scripts for measuring reconciliation and AI performance.
 
@@ -309,29 +309,25 @@ Run the AI-specific evaluation:
 
 python backend/evaluate_exception_ai.py
 
- Design Principles
-Deterministic Evidence First
+### Design Principles
 
+#### Deterministic Evidence First
 Financial reconciliation decisions are grounded in deterministic transaction checks.
 
-AI as an Assistant
-
+#### AI as an Assistant
 The AI model assists with exception classification rather than replacing the reconciliation engine.
 
-Human-in-the-Loop
-
+#### Human-in-the-Loop
 Low-confidence or conflicting decisions can be routed for manual investigation.
 
-Leakage-Aware Evaluation
-
+####Leakage-Aware Evaluation
 UTR identifiers are excluded from AI features to reduce the risk of directly exposing transaction identity information to the classifier.
 
-Auditability
-
+####Auditability
 The controller records predictions, confidence, evidence, disagreements, and review decisions.
 
 
- Technology Stack
+### Technology Stack
 Python
 Pandas
 Scikit-learn
@@ -339,7 +335,7 @@ Streamlit
 Joblib
 CSV-based financial transaction datasets
 
- Future Enhancements
+### Future Enhancements
 Custom CSV data ingestion
 Secure file upload
 Database integration
@@ -350,7 +346,7 @@ Role-based review workflows
 Production-grade authentication and audit logging
 Cloud deployment
 
- Current Scope
+### Current Scope
 
 The current version focuses on:
 
@@ -368,7 +364,7 @@ The included datasets are synthetic demonstration data with intentionally constr
 Custom user-provided CSV ingestion and processing are planned as a future enhancement.
 
 
- Project
+### Project
 
 FinGuard AI
 
